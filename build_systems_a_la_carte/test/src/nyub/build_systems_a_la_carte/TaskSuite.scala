@@ -1,30 +1,24 @@
 package nyub.build_systems_a_la_carte
 
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.{Task, Tasks}
+import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 
 class TaskSuite extends munit.FunSuite:
-    trait SpreadSheetTask extends Task[Applicative, String, Int]
 
     object Example_3_2:
         val sprsh1: Tasks[Applicative, String, Int] =
             case "B1" =>
-                // Add A1 and A2
-                new SpreadSheetTask:
-                    override def run[F[_]](using Applicative[F])(
-                        fetch: String => F[Int]
-                    ): F[Int] =
-                        (+) `<$>` fetch("A1") <*> (fetch("A2"))
-
-                .some
+                {
+                    [F[_]] =>
+                        (_: Applicative[F]) ?=>
+                            (fetch: String => F[Int]) =>
+                                (+) `<$>` fetch("A1") <*> (fetch("A2"))
+                }.some
             case "B2" =>
-                // Multiply B1 by 2
-                new SpreadSheetTask:
-                    override def run[F[_]](using Applicative[F])(
-                        fetch: String => F[Int]
-                    ): F[Int] =
-                        *(2) `<$>` fetch("B1")
-
-                .some
+                {
+                    [F[_]] =>
+                        (_: Applicative[F]) ?=>
+                            (fetch: String => F[Int]) => *(2) `<$>` fetch("B1")
+                }.some
             case _ => None
 
         def fetch(key: String): Option[Int] = key match
@@ -33,7 +27,7 @@ class TaskSuite extends munit.FunSuite:
             case "A2" => Some(2)
             // If a cell is not an input, use tasks definitions to find the relevant task and run it to compute the cell
             case notAnInput =>
-                sprsh1(notAnInput).flatMap(task => task.run(fetch))
+                sprsh1(notAnInput).flatMap(task => task(fetch))
 
         private def +(a: Int)(b: Int) = a + b
         private def *(a: Int)(b: Int) = a * b

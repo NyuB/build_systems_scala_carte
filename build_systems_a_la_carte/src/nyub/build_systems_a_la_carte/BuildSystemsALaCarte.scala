@@ -16,9 +16,7 @@ object BuildSystemsALaCarte:
         def getHash[K](key: K, storeModule: StoreModule[?, K, V]): Hash
     end HashModule
 
-    trait Task[C[_[_]], K, V]:
-        def run[F[_]](using C[F])(kfv: K => F[V]): F[V]
-    end Task
+    type Task[C[_[_]], K, V] = [F[_]] => (C[F] ?=> (K => F[V]) => F[V])
 
     type Tasks[C[_[_]], K, V] = K => Option[Task[C, K, V]]
 
