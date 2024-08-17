@@ -13,12 +13,12 @@ object Example_3_3:
             given Monad[StateMonad[s.Store]] = monadicState[s.Store]
             def fetch(k: String): State[s.Store, Int] =
                 tasks(k) match
-                    case None => ().ret.gets(st => s.getValue(k, st))
+                    case None => State.gets(st => s.getValue(k, st))
                     case Some(task) =>
                         task(fetch).flatMap(v =>
-                            State.get
+                            State
                                 .modify(st => s.putValue(k, v, st))
-                                .gets(_ => v)
+                                .flatMap(_ => v.ret)
                         )
             fetch(key).execState(store)
 
