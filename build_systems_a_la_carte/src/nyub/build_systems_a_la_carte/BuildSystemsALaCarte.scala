@@ -26,31 +26,3 @@ object BuildSystemsALaCarte:
     end BuildModule
 
 end BuildSystemsALaCarte
-
-trait Functor[F[_]]:
-    extension [A](fa: F[A]) def map[B](f: A => B): F[B]
-    extension [A, B](f: A => B)
-        final infix def `<$>`(fa: F[A]): F[B] = fa.map(f)
-
-end Functor
-
-trait Applicative[F[_]] extends Functor[F]:
-    def pure[A](a: A): F[A]
-    extension [A](fa: F[A])
-        final override def map[B](f: A => B): F[B] =
-            pure(f).ap(fa)
-
-    extension [A, B](ff: F[A => B])
-        def ap(fa: F[A]): F[B]
-        final infix def <*>(fa: F[A]): F[B] = ap(fa)
-
-end Applicative
-
-trait Monad[F[_]]:
-    def ret[A](a: A): F[A]
-
-    def flatMap[A, B](f: A => F[B], fa: F[A]): F[B]
-    final def >>=[A, B](fa: F[A], f: A => F[B]): F[B] = flatMap(f, fa)
-
-    final def map[A, B](f: A => B, fa: F[A]): F[B] =
-        flatMap((a: A) => ret(f(a)), fa)
