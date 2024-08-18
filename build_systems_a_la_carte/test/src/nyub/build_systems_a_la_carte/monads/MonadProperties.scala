@@ -1,4 +1,4 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.monads
 
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary

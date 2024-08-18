@@ -1,4 +1,4 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.monads
 
 trait Functor[F[_]]:
     extension [A](fa: F[A])

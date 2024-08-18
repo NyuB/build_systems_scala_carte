@@ -1,9 +1,8 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.monads
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 
-given Monad[Option] = Monad.given_Monad_Option
 class OptionMonadProperties extends MonadProperties[Option]:
     override def scalaCheckInitialSeed = "K3HFZb7sCk0GL2cE2HDoFbbhMBh5_ZTsEu25FnMAYGN="
     override given associativityTestCases: Arbitrary[AssociativityTestCase[?, ?, ?]] =

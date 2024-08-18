@@ -2,6 +2,7 @@ package nyub.build_systems_a_la_carte
 
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
+import monads.Applicative
 
 object StaticDependencies:
     def directDependencies[K, V](task: Task[Applicative, K, V]): Set[K] =

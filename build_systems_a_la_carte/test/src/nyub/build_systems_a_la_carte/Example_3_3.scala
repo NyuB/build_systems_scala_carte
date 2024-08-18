@@ -3,6 +3,7 @@ package nyub.build_systems_a_la_carte
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
+import nyub.build_systems_a_la_carte.monads.{monadicState, Applicative, Monad, State, StateMonad}
 
 object Example_3_3:
     object BusyBuildModule extends BuildSystem[Applicative, Unit, String, Int]:
@@ -16,7 +17,7 @@ object Example_3_3:
 
             def fetch(k: String): State[storeModule.Store, Int] =
                 tasks(k) match
-                    case None => State.gets(st => storeModule.getValue(k, st))
+                    case None => monads.State.gets(st => storeModule.getValue(k, st))
                     case Some(task) =>
                         task(fetch) >>= storeValueThenReturn(k, storeModule)
 
@@ -25,7 +26,7 @@ object Example_3_3:
         private def storeValueThenReturn(at: String, storeModule: StoreModule[Unit, String, Int])(
             v: Int
         ): State[storeModule.Store, Int] =
-            State.modify(st => storeModule.putValue(at, v, st)) >> v.ret
+            monads.State.modify(st => storeModule.putValue(at, v, st)) >> v.ret
 
     class BusyStoreModule(val constants: Map[String, Int]) extends StoreModule[Unit, String, Int]:
         type Store = Map[String, Int]

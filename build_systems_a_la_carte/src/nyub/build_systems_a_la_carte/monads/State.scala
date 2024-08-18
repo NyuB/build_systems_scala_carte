@@ -1,4 +1,4 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.monads
 
 final class State[S, A](val compute: S => (S, A)):
     def runState(s: S): (A, S) =

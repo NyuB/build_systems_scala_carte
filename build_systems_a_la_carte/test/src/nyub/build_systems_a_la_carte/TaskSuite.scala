@@ -1,7 +1,9 @@
 package nyub.build_systems_a_la_carte
 
+import monads.Monad
+
 class TaskSuite extends munit.FunSuite:
-    given Monad[Option] = Monad.given_Monad_Option
+    given Monad[Option] = monads.Monad.given_Monad_Option
     test("Example 3.2 - A1"):
         assertEquals(fetch_3_2("A1"), Some(A1))
 

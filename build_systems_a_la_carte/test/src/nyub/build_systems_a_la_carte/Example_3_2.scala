@@ -2,6 +2,7 @@ package nyub.build_systems_a_la_carte
 
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
+import nyub.build_systems_a_la_carte.monads.Applicative
 
 object Example_3_2:
     val sprsh1: Tasks[Applicative, String, Int] =

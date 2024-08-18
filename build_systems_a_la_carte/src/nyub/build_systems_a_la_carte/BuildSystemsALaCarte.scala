@@ -1,5 +1,7 @@
 package nyub.build_systems_a_la_carte
 
+import monads.{Identity, Monad}
+
 object BuildSystemsALaCarte:
     trait StoreModule[I, K, V]:
         type Store
@@ -18,7 +20,7 @@ object BuildSystemsALaCarte:
 
     type Task[C[_[_]], K, V] = [F[_]] => (C[F] ?=> (K => F[V]) => F[V])
     def compute[K, V](task: Task[Monad, K, V], storeModule: StoreModule[?, K, V], store: storeModule.Store): V =
-        given Monad[Identity] = Identity.given_Monad_Identity
+        given Monad[Identity] = monads.Identity.given_Monad_Identity
         task(k => Identity(storeModule.getValue(k, store))).value
 
     type Tasks[C[_[_]], K, V] = K => Option[Task[C, K, V]]
