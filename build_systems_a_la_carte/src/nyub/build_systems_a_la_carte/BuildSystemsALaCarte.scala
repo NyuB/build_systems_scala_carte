@@ -17,6 +17,9 @@ object BuildSystemsALaCarte:
     end HashModule
 
     type Task[C[_[_]], K, V] = [F[_]] => (C[F] ?=> (K => F[V]) => F[V])
+    def compute[K, V](task: Task[Monad, K, V], storeModule: StoreModule[?, K, V], store: storeModule.Store): V =
+        given Monad[Identity] = Identity.given_Monad_Identity
+        task(k => Identity(storeModule.getValue(k, store))).value
 
     type Tasks[C[_[_]], K, V] = K => Option[Task[C, K, V]]
 

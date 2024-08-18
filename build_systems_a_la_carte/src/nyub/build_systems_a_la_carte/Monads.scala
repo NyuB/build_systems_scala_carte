@@ -43,3 +43,9 @@ object Monad:
         ) override def flatMap[B](f: A => Option[B]): Option[B] = fa.flatMap(f)
 
 end Monad
+
+case class Identity[A](val value: A)
+object Identity:
+    given Monad[Identity] with
+        override def pure[A](a: A): Identity[A] = Identity(a)
+        extension [A](fa: Identity[A]) override def flatMap[B](f: A => Identity[B]): Identity[B] = f(fa.value)
