@@ -9,6 +9,7 @@ object Example_3_5:
         case "B2" => Some(taskB2)
         case _    => None
 
+    /** if C1 then B2 else A2 */
     val taskB1: Task[Monad, String, Int] =
         [F[_]] =>
             monad ?=>
@@ -16,6 +17,7 @@ object Example_3_5:
                     fetch("C1").flatMap: c1 =>
                         if c1 == 1 then fetch("B2") else fetch("A2")
 
+    /** if C1 then A1 else B1 */
     val taskB2: Task[Monad, String, Int] =
         [F[_]] =>
             monad ?=>

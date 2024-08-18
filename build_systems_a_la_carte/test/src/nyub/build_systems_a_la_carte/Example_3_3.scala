@@ -22,8 +22,7 @@ object Example_3_3:
                         )
             fetch(key).execState(store)
 
-    class BusyStoreModule(val constants: Map[String, Int])
-        extends StoreModule[Unit, String, Int]:
+    class BusyStoreModule(val constants: Map[String, Int]) extends StoreModule[Unit, String, Int]:
         type Store = Map[String, Int]
         override def initialise(i: Unit, kv: String => Int): Store =
             constants.withDefault(kv)

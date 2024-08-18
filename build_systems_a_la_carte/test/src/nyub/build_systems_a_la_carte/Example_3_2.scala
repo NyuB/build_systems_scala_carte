@@ -9,15 +9,15 @@ object Example_3_2:
         case "B2" => Some(taskB2)
         case _    => None
 
+    /** A1 + A2 */
     val taskB1: Task[Applicative, String, Int] =
         [F[_]] => applicative ?=> fetch => (+) `<$>` fetch("A1") <*> fetch("A2")
 
+    /** 2 * B1 */
     val taskB2: Task[Applicative, String, Int] =
         [F[_]] => applicative ?=> fetch => *(2) `<$>` fetch("B1")
 
-    /** B2 expressed as B1 + B1 instead of B1 * 2 to exhibit non-minimal build
-      * systems
-      */
+    /** B2 expressed as B1 + B1 instead of B1 * 2 to exhibit non-minimal build systems */
     val taskB2_nonMinimal: Task[Applicative, String, Int] =
         [F[_]] => applicative ?=> fetch => (+) `<$>` fetch("B1") <*> fetch("B1")
 

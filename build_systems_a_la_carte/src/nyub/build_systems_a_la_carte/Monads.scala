@@ -2,8 +2,7 @@ package nyub.build_systems_a_la_carte
 
 trait Functor[F[_]]:
     extension [A](fa: F[A]) def map[B](f: A => B): F[B]
-    extension [A, B](f: A => B)
-        final infix def `<$>`(fa: F[A]): F[B] = fa.map(f)
+    extension [A, B](f: A => B) final infix def `<$>`(fa: F[A]): F[B] = fa.map(f)
 
 end Functor
 
