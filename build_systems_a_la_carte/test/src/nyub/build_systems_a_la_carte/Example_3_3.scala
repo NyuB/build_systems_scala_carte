@@ -7,7 +7,7 @@ import nyub.build_systems_a_la_carte.monads.{monadicState, Applicative, Monad, S
 
 object Example_3_3:
     object BusyBuildSystem extends BuildSystem[Applicative, Unit, String, Int]:
-        def build(using storeModule: StoreModule[Unit, String, Int])(
+        override def build(using storeModule: StoreModule[Unit, String, Int])(
             tasks: Tasks[Applicative, String, Int],
             key: String,
             store: storeModule.Store
