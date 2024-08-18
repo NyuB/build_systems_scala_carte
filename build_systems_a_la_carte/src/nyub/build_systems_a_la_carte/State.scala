@@ -22,7 +22,7 @@ end State
 type StateMonad[S] = [A] =>> State[S, A]
 
 given monadicState[S]: Monad[StateMonad[S]] with
-    extension [A](a: A) override def ret: State[S, A] = State.gets(_ => a)
+    override def pure[A](a: A): State[S, A] = State.gets(_ => a)
     extension [A](fa: State[S, A])
         override def flatMap[B](f: A => State[S, B]): State[S, B] =
             State: s =>

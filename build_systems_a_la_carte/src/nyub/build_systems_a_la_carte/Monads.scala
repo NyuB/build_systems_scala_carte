@@ -19,8 +19,7 @@ trait Applicative[F[_]] extends Functor[F]:
 end Applicative
 
 trait Monad[F[_]] extends Applicative[F]:
-    extension [A](a: A) def ret: F[A]
-    final override def pure[A](a: A): F[A] = a.ret
+    extension [A](a: A) final def ret: F[A] = pure(a)
 
     extension [A](fa: F[A]) def flatMap[B](f: A => F[B]): F[B]
 

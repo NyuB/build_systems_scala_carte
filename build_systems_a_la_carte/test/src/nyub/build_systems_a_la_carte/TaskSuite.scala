@@ -51,7 +51,7 @@ class TaskSuite extends munit.FunSuite:
                 .flatMap(task => task(k => fetch_3_5(c1, k)))
 
     given Monad[Option] with
-        extension [A](a: A) override def ret: Option[A] = Some(a)
+        override def pure[A](a: A): Option[A] = Some(a)
         extension [A](
             fa: Option[A]
         ) override def flatMap[B](f: A => Option[B]): Option[B] = fa.flatMap(f)
