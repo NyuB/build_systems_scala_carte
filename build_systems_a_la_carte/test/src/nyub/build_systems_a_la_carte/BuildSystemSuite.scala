@@ -4,29 +4,29 @@ import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 
 class BuildSystemSuite extends munit.FunSuite:
-    val sheet: StoreModule[Unit, String, Int] = Example_3_3.BusyStoreModule(
+    given StoreModule[Unit, String, Int] = Example_3_3.BusyStoreModule(
       Map("A1" -> 10, "A2" -> 20)
     )
 
     test("Example 3.3 - compute B1"):
-        val store = sheet.initialise((), doNotUseDefaultValue)
+        val store = StoreModule.initialise((), doNotUseDefaultValue)
         val result =
-            Example_3_3.BusyBuildSystem.build(Example_3_2.sprsh1, "B1", sheet, store)
-        val b1 = sheet.getValue("B1", result)
+            Example_3_3.BusyBuildSystem.build(Example_3_2.sprsh1, "B1", store)
+        val b1 = result.getValue("B1")
         assertEquals(b1, 30)
 
     test("Example 3.3 - compute B2, B1 computed along the way"):
-        val store = sheet.initialise((), doNotUseDefaultValue)
+        val store = StoreModule.initialise((), doNotUseDefaultValue)
         val result =
-            Example_3_3.BusyBuildSystem.build(Example_3_2.sprsh1, "B2", sheet, store)
-        val b1 = sheet.getValue("B1", result)
-        val b2 = sheet.getValue("B2", result)
+            Example_3_3.BusyBuildSystem.build(Example_3_2.sprsh1, "B2", store)
+        val b1 = result.getValue("B1")
+        val b2 = result.getValue("B2")
         assertEquals(b1, 30)
         assertEquals(b2, 60)
 
     test("Example 3.3 - 'busy' is not a minimal build system"):
         // Given
-        val store = sheet.initialise((), doNotUseDefaultValue)
+        val store = StoreModule.initialise((), doNotUseDefaultValue)
         val b1Observer = TaskObserver(Example_3_2.taskB1)
         val replaceB2ByNonMinimalVersionAndObserveB1 = (s: String) =>
             s match
@@ -39,17 +39,14 @@ class BuildSystemSuite extends munit.FunSuite:
             Example_3_3.BusyBuildSystem.build(
               replaceB2ByNonMinimalVersionAndObserveB1,
               "B2",
-              sheet,
               store
             )
-        val b1 = sheet.getValue("B1", result)
-        val b2 = sheet.getValue("B2", result)
         assertEquals(
-          b1,
+          result.getValue("B1"),
           30,
           "observed B1 should have the same result as the raw task"
         )
-        assertEquals(b2, 60, "B1 + B1 should be equal to 2 * B1")
+        assertEquals(result.getValue("B2"), 60, "B1 + B1 should be equal to 2 * B1")
 
         // Then
         assertEquals(

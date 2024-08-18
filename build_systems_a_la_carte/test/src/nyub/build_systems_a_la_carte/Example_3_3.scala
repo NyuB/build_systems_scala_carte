@@ -7,40 +7,40 @@ import nyub.build_systems_a_la_carte.monads.{monadicState, Applicative, Monad, S
 
 object Example_3_3:
     object BusyBuildSystem extends BuildSystem[Applicative, Unit, String, Int]:
-        def build(
+        def build(using storeModule: StoreModule[Unit, String, Int])(
             tasks: Tasks[Applicative, String, Int],
             key: String,
-            storeModule: StoreModule[Unit, String, Int],
             store: storeModule.Store
         ) =
             given Monad[StateMonad[storeModule.Store]] = monadicState[storeModule.Store]
 
             def fetch(k: String): State[storeModule.Store, Int] =
                 tasks(k) match
-                    case None => monads.State.gets(st => storeModule.getValue(k, st))
+                    case None => monads.State.gets(st => st.getValue(k))
                     case Some(task) =>
-                        task(fetch) >>= storeValueThenReturn(k, storeModule)
+                        task(fetch) >>= storeValueThenReturn(k)
 
             fetch(key).execState(store)
 
-        private def storeValueThenReturn(at: String, storeModule: StoreModule[Unit, String, Int])(
+        private def storeValueThenReturn(using storeModule: StoreModule[Unit, String, Int])(at: String)(
             v: Int
         ): State[storeModule.Store, Int] =
-            monads.State.modify(st => storeModule.putValue(at, v, st)) >> v.ret
+            monads.State.modify[storeModule.Store](st => st.putValue(at, v)) >> v.ret
 
     class BusyStoreModule(val constants: Map[String, Int]) extends StoreModule[Unit, String, Int]:
         type Store = Map[String, Int]
         override def initialise(i: Unit, kv: String => Int): Store =
             constants.withDefault(kv)
 
-        override def getInfo(store: Map[String, Int]): Unit = ()
-        override def getValue(key: String, store: Map[String, Int]): Int =
-            store(key)
+        extension (store: Map[String, Int])
+            override def getInfo: Unit = ()
+            override def getValue(key: String): Int =
+                store(key)
 
-        override def putInfo(info: Unit, store: Map[String, Int]): Store = store
-        override def putValue(using
-            CanEqual[String, String]
-        )(key: String, v: Int, store: Map[String, Int]): Store =
-            store.updated(key, v)
+            override def putInfo(info: Unit): Store = store
+            override def putValue(using
+                CanEqual[String, String]
+            )(key: String, v: Int): Store =
+                store.updated(key, v)
 
 end Example_3_3
