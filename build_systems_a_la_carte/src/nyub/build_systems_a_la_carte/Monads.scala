@@ -1,7 +1,10 @@
 package nyub.build_systems_a_la_carte
 
 trait Functor[F[_]]:
-    extension [A](fa: F[A]) def map[B](f: A => B): F[B]
+    extension [A](fa: F[A])
+        def map[B](f: A => B): F[B]
+        final infix def `<&>`[B](f: A => B): F[B] = fa.map(f)
+
     extension [A, B](f: A => B) final infix def `<$>`(fa: F[A]): F[B] = fa.map(f)
 
 end Functor
@@ -21,7 +24,10 @@ end Applicative
 trait Monad[F[_]] extends Applicative[F]:
     extension [A](a: A) final def ret: F[A] = pure(a)
 
-    extension [A](fa: F[A]) def flatMap[B](f: A => F[B]): F[B]
+    extension [A](fa: F[A])
+        def flatMap[B](f: A => F[B]): F[B]
+        final infix def >>=[B](f: A => F[B]): F[B] = flatMap(f)
+        final infix def >>[B](fb: F[B]): F[B] = flatMap(_ => fb)
 
     extension [A, B](fab: F[A => B])
         final override def ap(fa: F[A]): F[B] = fab.flatMap: ab =>

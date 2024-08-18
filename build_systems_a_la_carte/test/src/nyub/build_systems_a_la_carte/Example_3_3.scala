@@ -11,16 +11,17 @@ object Example_3_3:
 
         val busy: Build = (tasks, key, store) =>
             given Monad[StateMonad[s.Store]] = monadicState[s.Store]
+
             def fetch(k: String): State[s.Store, Int] =
                 tasks(k) match
                     case None => State.gets(st => s.getValue(k, st))
                     case Some(task) =>
-                        task(fetch).flatMap(v =>
-                            State
-                                .modify(st => s.putValue(k, v, st))
-                                .flatMap(_ => v.ret)
-                        )
+                        task(fetch) >>= storeValueThenReturn(k)
+
             fetch(key).execState(store)
+
+        private def storeValueThenReturn(at: String)(v: Int): State[s.Store, Int] =
+            State.modify(st => s.putValue(at, v, st)) >> v.ret
 
     class BusyStoreModule(val constants: Map[String, Int]) extends StoreModule[Unit, String, Int]:
         type Store = Map[String, Int]

@@ -12,21 +12,14 @@ class StateSuite extends munit.FunSuite:
             State.get.flatMap(s => State.put(s"[$s]"))
         val computation =
             appendCurrentStateLength
-                .`and then`(appendCurrentStateLength)
-                .`and then`(appendCurrentStateLength)
-                .`and then`(appendCurrentStateLength)
-                .`and then`(appendCurrentStateLength)
-                .`and then`(appendCurrentStateLength)
-                .`and then`(State.get[String])
-                .`and then`(surroundWithBrackets)
+                >> appendCurrentStateLength
+                >> appendCurrentStateLength
+                >> appendCurrentStateLength
+                >> appendCurrentStateLength
+                >> appendCurrentStateLength
+                >> State.get[String]
+                >>= surroundWithBrackets
 
         assertEquals(computation.execState(""), "[0, 3, 6, 9, 12, 16, ]")
-
-    extension [S, A](state: State[S, A])
-        def `and then`[B](next: State[S, B]): State[S, B] =
-            state.flatMap(_ => next)
-
-        def `and then`[B](f: A => State[S, B]): State[S, B] =
-            state.flatMap(f)
 
 end StateSuite
