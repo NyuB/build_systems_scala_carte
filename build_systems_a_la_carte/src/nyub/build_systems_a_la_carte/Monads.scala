@@ -34,3 +34,12 @@ trait Monad[F[_]] extends Applicative[F]:
             fa.flatMap(a => ab(a).ret)
 
 end Monad
+
+object Monad:
+    given Monad[Option] with
+        override def pure[A](a: A): Option[A] = Some(a)
+        extension [A](
+            fa: Option[A]
+        ) override def flatMap[B](f: A => Option[B]): Option[B] = fa.flatMap(f)
+
+end Monad

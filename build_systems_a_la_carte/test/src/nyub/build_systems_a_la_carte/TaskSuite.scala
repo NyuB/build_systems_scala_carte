@@ -1,6 +1,7 @@
 package nyub.build_systems_a_la_carte
 
 class TaskSuite extends munit.FunSuite:
+    given Monad[Option] = Monad.given_Monad_Option
     test("Example 3.2 - A1"):
         assertEquals(fetch_3_2("A1"), Some(A1))
 
@@ -49,12 +50,6 @@ class TaskSuite extends munit.FunSuite:
             Example_3_5
                 .sprsh2(notAnInput)
                 .flatMap(task => task(k => fetch_3_5(c1, k)))
-
-    given Monad[Option] with
-        override def pure[A](a: A): Option[A] = Some(a)
-        extension [A](
-            fa: Option[A]
-        ) override def flatMap[B](f: A => Option[B]): Option[B] = fa.flatMap(f)
 
 end TaskSuite
 
