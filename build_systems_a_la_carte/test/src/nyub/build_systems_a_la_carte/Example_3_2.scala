@@ -15,6 +15,12 @@ object Example_3_2:
     val taskB2: Task[Applicative, String, Int] =
         [F[_]] => applicative ?=> fetch => *(2) `<$>` fetch("B1")
 
+    /** B2 expressed as B1 + B1 instead of B1 * 2 to exhibit non-minimal build
+      * systems
+      */
+    val taskB2_nonMinimal: Task[Applicative, String, Int] =
+        [F[_]] => applicative ?=> fetch => (+) `<$>` fetch("B1") <*> fetch("B1")
+
     private def +(a: Int)(b: Int) = a + b
     private def *(a: Int)(b: Int) = a * b
 end Example_3_2
