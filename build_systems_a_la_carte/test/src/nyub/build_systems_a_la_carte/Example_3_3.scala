@@ -1,27 +1,31 @@
 package nyub.build_systems_a_la_carte
 
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildModule
+import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
+import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 
 object Example_3_3:
-    object BusyBuildModule extends BuildModule[Applicative, Unit, String, Int]:
-        override val s: StoreModule[Unit, String, Int] = BusyStoreModule(
-          Map("A1" -> 10, "A2" -> 20)
-        )
+    object BusyBuildModule extends BuildSystem[Applicative, Unit, String, Int]:
+        def build(
+            tasks: Tasks[Applicative, String, Int],
+            key: String,
+            storeModule: StoreModule[Unit, String, Int],
+            store: storeModule.Store
+        ) =
+            given Monad[StateMonad[storeModule.Store]] = monadicState[storeModule.Store]
 
-        val busy: Build = (tasks, key, store) =>
-            given Monad[StateMonad[s.Store]] = monadicState[s.Store]
-
-            def fetch(k: String): State[s.Store, Int] =
+            def fetch(k: String): State[storeModule.Store, Int] =
                 tasks(k) match
-                    case None => State.gets(st => s.getValue(k, st))
+                    case None => State.gets(st => storeModule.getValue(k, st))
                     case Some(task) =>
-                        task(fetch) >>= storeValueThenReturn(k)
+                        task(fetch) >>= storeValueThenReturn(k, storeModule)
 
             fetch(key).execState(store)
 
-        private def storeValueThenReturn(at: String)(v: Int): State[s.Store, Int] =
-            State.modify(st => s.putValue(at, v, st)) >> v.ret
+        private def storeValueThenReturn(at: String, storeModule: StoreModule[Unit, String, Int])(
+            v: Int
+        ): State[storeModule.Store, Int] =
+            State.modify(st => storeModule.putValue(at, v, st)) >> v.ret
 
     class BusyStoreModule(val constants: Map[String, Int]) extends StoreModule[Unit, String, Int]:
         type Store = Map[String, Int]

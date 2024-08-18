@@ -23,9 +23,14 @@ object BuildSystemsALaCarte:
 
     type Tasks[C[_[_]], K, V] = K => Option[Task[C, K, V]]
 
-    trait BuildModule[C[_[_]], I, K, V]:
-        val s: StoreModule[I, K, V]
-        type Build = (Tasks[C, K, V], K, s.Store) => s.Store
-    end BuildModule
+    trait BuildSystem[C[_[_]], I, K, V]:
+        def build(
+            tasks: Tasks[C, K, V],
+            key: K,
+            storeModule: StoreModule[I, K, V],
+            store: storeModule.Store
+        ): storeModule.Store
+
+    end BuildSystem
 
 end BuildSystemsALaCarte
