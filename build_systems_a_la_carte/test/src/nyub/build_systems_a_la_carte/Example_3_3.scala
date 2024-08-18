@@ -6,7 +6,7 @@ import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.monads.{monadicState, Applicative, Monad, State, StateMonad}
 
 object Example_3_3:
-    object BusyBuildModule extends BuildSystem[Applicative, Unit, String, Int]:
+    object BusyBuildSystem extends BuildSystem[Applicative, Unit, String, Int]:
         def build(
             tasks: Tasks[Applicative, String, Int],
             key: String,
