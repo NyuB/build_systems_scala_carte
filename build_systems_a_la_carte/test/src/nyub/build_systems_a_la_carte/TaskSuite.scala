@@ -1,6 +1,7 @@
 package nyub.build_systems_a_la_carte
 
 import monads.Monad
+import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 
 class TaskSuite extends munit.FunSuite:
     given Monad[Option] = monads.Monad.given_Monad_Option
@@ -35,6 +36,14 @@ class TaskSuite extends munit.FunSuite:
           fetch_3_5(0, "B2"),
           Some(A2)
         ) // (C1 =/= 1) => (B2 = B1 = A2 = 2)
+
+    test("compute"):
+        given FunctionalStoreModule[Unit, String, Int] = FunctionalStoreModule[Unit, String, Int]()
+        val singleValueStore = FunctionalStoreModule.defaultValue(())(42)
+        def add(a: Int)(b: Int) = a + b
+
+        val task: Task[Monad, String, Int] = [F[_]] => monad ?=> fetch => add `<$>` fetch("A") <*> fetch("B")
+        assertEquals(Task.compute(task, singleValueStore), 42 + 42)
 
     def fetch_3_2(key: String): Option[Int] = key match
         // A1 and A2 are 'excel inputs'
