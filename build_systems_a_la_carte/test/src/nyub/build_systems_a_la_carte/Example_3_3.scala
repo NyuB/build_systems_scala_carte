@@ -6,15 +6,15 @@ import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.monads.{monadicState, Applicative, Monad, State, StateMonad}
 
 object Example_3_3:
-    object BusyBuildSystem extends BuildSystem[Applicative, Unit, String, Int]:
-        override def build(using storeModule: StoreModule[Unit, String, Int])(
-            tasks: Tasks[Applicative, String, Int],
+    class BusyBuildSystem[V] extends BuildSystem[Applicative, Unit, String, V]:
+        override def build(using storeModule: StoreModule[Unit, String, V])(
+            tasks: Tasks[Applicative, String, V],
             key: String,
             store: storeModule.Store
         ) =
             given Monad[StateMonad[storeModule.Store]] = monadicState[storeModule.Store]
 
-            def fetch(k: String): State[storeModule.Store, Int] =
+            def fetch(k: String): State[storeModule.Store, V] =
                 tasks(k) match
                     case None => monads.State.gets(st => st.getValue(k))
                     case Some(task) =>
@@ -22,9 +22,9 @@ object Example_3_3:
 
             fetch(key).execState(store)
 
-        private def storeValueThenReturn(using storeModule: StoreModule[Unit, String, Int])(at: String)(
-            v: Int
-        ): State[storeModule.Store, Int] =
+        private def storeValueThenReturn(using storeModule: StoreModule[Unit, String, V])(at: String)(
+            v: V
+        ): State[storeModule.Store, V] =
             monads.State.modify[storeModule.Store](st => st.putValue(at, v)) >> v.ret
 
     class BusyStoreModule(val constants: Map[String, Int]) extends StoreModule[Unit, String, Int]:

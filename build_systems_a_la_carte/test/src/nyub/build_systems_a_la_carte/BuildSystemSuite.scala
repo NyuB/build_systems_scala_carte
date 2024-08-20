@@ -4,21 +4,30 @@ import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 
 class BuildSystemSuite extends munit.FunSuite:
-    given StoreModule[Unit, String, Int] = Example_3_3.BusyStoreModule(
-      Map("A1" -> 10, "A2" -> 20)
-    )
+
+    test("Example 2.1 - compute main.exe"):
+        given Example_2_1.storeModule.type = Example_2_1.storeModule
+        val result = Example_3_3.BusyBuildSystem().build(Example_2_1.tasks, "main.exe", Example_2_1.inputs)
+        assertEquals(
+          result.getValue("main.exe"),
+          Example_2_1.Artifact.Executable(
+            "[EXE - [OBJ - [HEADER - util][SOURCE - main]][OBJ - [HEADER - util][SOURCE - util]]]"
+          )
+        )
 
     test("Example 3.3 - compute B1"):
+        given StoreModule[Unit, String, Int] = spreadSheetInputs
         val store = StoreModule.initialise((), doNotUseDefaultValue)
         val result =
-            Example_3_3.BusyBuildSystem.build(Example_3_2.sprsh1, "B1", store)
+            Example_3_3.BusyBuildSystem().build(Example_3_2.sprsh1, "B1", store)
         val b1 = result.getValue("B1")
         assertEquals(b1, 30)
 
     test("Example 3.3 - compute B2, B1 computed along the way"):
+        given StoreModule[Unit, String, Int] = spreadSheetInputs
         val store = StoreModule.initialise((), doNotUseDefaultValue)
         val result =
-            Example_3_3.BusyBuildSystem.build(Example_3_2.sprsh1, "B2", store)
+            Example_3_3.BusyBuildSystem().build(Example_3_2.sprsh1, "B2", store)
         val b1 = result.getValue("B1")
         val b2 = result.getValue("B2")
         assertEquals(b1, 30)
@@ -26,6 +35,7 @@ class BuildSystemSuite extends munit.FunSuite:
 
     test("Example 3.3 - 'busy' is not a minimal build system"):
         // Given
+        given StoreModule[Unit, String, Int] = spreadSheetInputs
         val store = StoreModule.initialise((), doNotUseDefaultValue)
         val b1Observer = TaskObserver(Example_3_2.taskB1)
         val replaceB2ByNonMinimalVersionAndObserveB1 = (s: String) =>
@@ -36,11 +46,13 @@ class BuildSystemSuite extends munit.FunSuite:
 
         // When
         val result =
-            Example_3_3.BusyBuildSystem.build(
-              replaceB2ByNonMinimalVersionAndObserveB1,
-              "B2",
-              store
-            )
+            Example_3_3
+                .BusyBuildSystem()
+                .build(
+                  replaceB2ByNonMinimalVersionAndObserveB1,
+                  "B2",
+                  store
+                )
         assertEquals(
           result.getValue("B1"),
           30,
@@ -55,9 +67,13 @@ class BuildSystemSuite extends munit.FunSuite:
           "Expected B to be called twice because this build system is not minimal"
         )
 
-    def doNotUseDefaultValue[K, V](k: K): V = ???
+    private val spreadSheetInputs = Example_3_3.BusyStoreModule(
+      Map("A1" -> 10, "A2" -> 20)
+    )
 
-    class TaskObserver[C[_[_]], K, V](
+    private def doNotUseDefaultValue[K, V](k: K): V = ???
+
+    private class TaskObserver[C[_[_]], K, V](
         private val underlyingTask: Task[C, K, V]
     ):
         var callCount: Int = 0
