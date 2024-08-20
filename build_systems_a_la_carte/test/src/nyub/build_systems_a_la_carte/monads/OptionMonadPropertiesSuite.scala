@@ -2,6 +2,7 @@ package nyub.build_systems_a_la_carte.monads
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
+import org.scalacheck.Prop
 
 class OptionMonadProperties extends MonadProperties[Option]:
     override def scalaCheckInitialSeed = "K3HFZb7sCk0GL2cE2HDoFbbhMBh5_ZTsEu25FnMAYGN="
@@ -20,7 +21,7 @@ class OptionMonadProperties extends MonadProperties[Option]:
             RightIdentityTestCase(l)
         Arbitrary(gen)
 
-    override def eq[A](a: Option[A], b: Option[A]): Boolean = a == b
+    override def eq[A](a: Option[A], b: Option[A]): Prop = assertEquals(a, b)
 
     private def longOptions = Gen.option(Gen.long)
     private def someIsMultipleOfThree(n: Long): Option[Boolean] = Some(n % 3 == 0)

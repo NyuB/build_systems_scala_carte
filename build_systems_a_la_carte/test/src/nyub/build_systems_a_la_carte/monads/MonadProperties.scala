@@ -1,5 +1,6 @@
 package nyub.build_systems_a_la_carte.monads
 
+import org.scalacheck.Prop
 import org.scalacheck.Prop._
 import org.scalacheck.Arbitrary
 
@@ -17,8 +18,8 @@ trait MonadProperties[M[_]](using monad: Monad[M]) extends munit.ScalaCheckSuite
         forAll: (fp: AssociativityTestCase[?, ?, ?]) =>
             (fp.m >>= (x => fp.f(x) >>= fp.g)) =:= ((fp.m >>= fp.f) >>= fp.g)
 
-    def eq[A](a: M[A], b: M[A]): Boolean
-    extension [A](a: M[A]) final infix def =:=(b: M[A]): Boolean = eq(a, b)
+    def eq[A](a: M[A], b: M[A]): Prop
+    extension [A](a: M[A]) final infix def =:=(b: M[A]): Prop = eq(a, b)
 
     given leftIdentityTestCases: Arbitrary[LeftIdentityTestCase[?, ?]]
     given rightIdentityTestCases: Arbitrary[RightIdentityTestCase[?]]
