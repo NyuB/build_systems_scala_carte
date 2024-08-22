@@ -42,7 +42,8 @@ class TaskSuite extends munit.FunSuite:
         val singleValueStore = FunctionalStoreModule.defaultValue(())(42)
         def add(a: Int)(b: Int) = a + b
 
-        val task: Task[Monad, String, Int] = [F[_]] => monad ?=> fetch => add `<$>` fetch("A") <*> fetch("B")
+        val task = Task[Monad, String, Int]:
+            [F[_]] => monad ?=> fetch => add `<$>` fetch("A") <*> fetch("B")
         assertEquals(Task.compute(task, singleValueStore), 42 + 42)
 
     def fetch_3_2(key: String): Option[Int] = key match

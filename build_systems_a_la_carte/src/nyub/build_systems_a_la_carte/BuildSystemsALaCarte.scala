@@ -40,7 +40,27 @@ object BuildSystemsALaCarte:
         def getHash[K](key: K, storeModule: StoreModule[?, K, V]): Hash
     end HashModule
 
-    type Task[C[_[_]], K, V] = [F[_]] => (C[F] ?=> (K => F[V]) => F[V])
+    /** @tparam C
+      *   the environment **c**onstraints and **c**apabilities required to run this [[Task]]
+      * @tparam K
+      *   the **k**eys allowing to fetch other tasks' results
+      * @tparam V
+      *   the **t**ype of values produced by this task
+      */
+    trait Task[C[_[_]], K, V]:
+        /** @tparam F
+          *   the environment (or e**f**fect) within which to run this task
+          * @param constraints
+          *   provided **c**onstraints and **c**apabilities in the environment `F[_]`
+          * @param fetch
+          *   callback to retrieve other tasks' results
+          * @return
+          *   the result of running this task within the environment `F[_]`
+          */
+        def run[F[_]](using constraints: C[F])(fetch: K => F[V]): F[V]
+        final def apply[F[_]](using constraints: C[F])(fetch: K => F[V]): F[V] = run(fetch)
+    end Task
+
     object Task:
         /** @param storeModule
           *   operations available on `store`
@@ -57,9 +77,58 @@ object BuildSystemsALaCarte:
             given Monad[Identity] = monads.Identity.given_Monad_Identity
             task(k => Identity(store.getValue(k))).value
 
+        /** @see
+          *   [[Task]]
+          * @tparam C
+          *   the environment **c**onstraints and **c**apabilities required to run this [[Task]]
+          * @tparam K
+          *   the **k**eys allowing to fetch other tasks' results
+          * @tparam V
+          *   the **t**ype of values produced by this task
+          * @param f
+          *   the task implementation
+          * @return
+          *   a [[Task]] using `f` as implementation
+          */
+        def apply[C[_[_]], K, V](f: [F[_]] => C[F] ?=> (K => F[V]) => F[V]): Task[C, K, V] = new:
+            override def run[F[_]](using constraints: C[F])(fetch: K => F[V]): F[V] = f(fetch)
+
     end Task
 
-    type Tasks[C[_[_]], K, V] = K => Option[Task[C, K, V]]
+    /** [[Task]] definitions
+      * @tparam C
+      *   the environment **c**onstraints and **c**apabilities required to run these [[Task]]s
+      * @tparam K
+      *   the **k**eys allowing to fetch tasks
+      * @tparam V
+      *   the **t**ype of values produced by these tasks
+      */
+    trait Tasks[C[_[_]], K, V]:
+        /** @param taskKey
+          *   identifier of the task within these [[Tasks]] definition
+          * @return
+          *   the task associated with `taskKey` if defined within these [[Tasks]], `None` otherwise
+          */
+        def get(taskKey: K): Option[Task[C, K, V]]
+
+        /** @see
+          *   [[Tasks#get]]
+          * @return
+          *   `get(taskKey)`
+          */
+        final def apply(taskKey: K): Option[Task[C, K, V]] = get(taskKey)
+    end Tasks
+
+    object Tasks:
+        /** @param f
+          *   `K`ey to [[Task]] definitions
+          * @return
+          *   an implementation of [[Tasks]] using `f`
+          */
+        def apply[C[_[_]], K, V](f: K => Option[Task[C, K, V]]): Tasks[C, K, V] = new:
+            override def get(taskKey: K): Option[Task[C, K, V]] = f(taskKey)
+
+    end Tasks
 
     trait BuildSystem[C[_[_]], I, K, V]:
         /** @param storeModule

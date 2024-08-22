@@ -10,20 +10,27 @@ type StringToLongStateMonad[A] = StateMonad[StringToLong][A]
 class StringStateMonadPropertiesSuite extends MonadProperties[StringToLongStateMonad]:
     override given associativityTestCases: Arbitrary[AssociativityTestCase[?, ?, ?]] =
         val gen = summon[Arbitrary[StringToLong]].arbitrary.flatMap: maps =>
-            AssociativityTestCase(maps.ret, m => State.gets(s => s.size), n => State.modify(s => s.updated(n.toHexString, n)))
+            AssociativityTestCase(
+              maps.ret,
+              m => State.gets(s => s.size),
+              n => State.modify(s => s.updated(n.toHexString, n))
+            )
         Arbitrary(gen)
+
     override given leftIdentityTestCases: Arbitrary[LeftIdentityTestCase[?, ?]] =
         val gen = summon[Arbitrary[StringToLong]].arbitrary.flatMap: maps =>
             Gen.long.map: l =>
                 LeftIdentityTestCase(l, n => maps.ret >> State.modify(s => s.updated(n.toHexString, n)))
-        Arbitrary(gen)       
+        Arbitrary(gen)
+
     override given rightIdentityTestCases: Arbitrary[RightIdentityTestCase[?]] =
         val gen = summon[Arbitrary[StringToLong]].arbitrary.flatMap: maps =>
             Gen.long.map: l =>
                 RightIdentityTestCase(maps.ret)
-        Arbitrary(gen)  
+        Arbitrary(gen)
+
     override def eq[A](a: StringToLongStateMonad[A], b: StringToLongStateMonad[A]): Prop =
         forAll: (s: StringToLong) =>
             assertEquals(a.compute(s), b.compute(s))
-    
+
 end StringStateMonadPropertiesSuite

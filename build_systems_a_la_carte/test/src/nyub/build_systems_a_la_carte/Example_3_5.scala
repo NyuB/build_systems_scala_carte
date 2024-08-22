@@ -11,11 +11,11 @@ object Example_3_5:
         case _    => None
 
     /** if C1 then B2 else A2 */
-    val taskB1: Task[Monad, String, Int] =
+    val taskB1 = Task[Monad, String, Int]:
         [F[_]] => monad ?=> fetch => fetch("C1") >>= (c1 => if c1 == 1 then fetch("B2") else fetch("A2"))
 
     /** if C1 then A1 else B1 */
-    val taskB2: Task[Monad, String, Int] =
+    val taskB2 = Task[Monad, String, Int]:
         [F[_]] => monad ?=> fetch => fetch("C1") >>= (c1 => if c1 != 1 then fetch("B1") else fetch("A1"))
 
 end Example_3_5

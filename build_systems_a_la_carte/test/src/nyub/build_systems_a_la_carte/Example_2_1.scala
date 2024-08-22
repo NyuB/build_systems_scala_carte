@@ -33,7 +33,7 @@ object Example_2_1:
         case class ObjectFile(override val content: String) extends Artifact
         case class Executable(override val content: String) extends Artifact
 
-    private def objectFileTask(sourceFile: String, headers: List[String]): Task[Applicative, String, Artifact] =
+    private def objectFileTask(sourceFile: String, headers: List[String]) = Task[Applicative, String, Artifact]:
         [F[_]] =>
             app ?=>
                 fetch =>
@@ -45,7 +45,7 @@ object Example_2_1:
                     val totalContent = concatContents `<$>` headersContent <*> sourceContent
                     totalContent.map(c => Artifact.ObjectFile(s"[OBJ - $c]"))
 
-    private def executableFileTask(objectFiles: List[String]): Task[Applicative, String, Artifact] =
+    private def executableFileTask(objectFiles: List[String]) = Task[Applicative, String, Artifact]:
         [F[_]] =>
             app ?=>
                 fetch =>

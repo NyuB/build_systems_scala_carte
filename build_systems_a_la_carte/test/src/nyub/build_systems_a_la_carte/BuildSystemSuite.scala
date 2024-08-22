@@ -2,6 +2,7 @@ package nyub.build_systems_a_la_carte
 
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
+import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 
 class BuildSystemSuite extends munit.FunSuite:
 
@@ -40,7 +41,7 @@ class BuildSystemSuite extends munit.FunSuite:
         val b1Observer = TaskObserver(Example_3_2.taskB1)
         val replaceB2ByNonMinimalVersionAndObserveB1 = (s: String) =>
             s match
-                case "B1" => Some(b1Observer.task)
+                case "B1" => Some(b1Observer)
                 case "B2" => Some(Example_3_2.taskB2_nonMinimal)
                 case k    => Example_3_2.sprsh1(k)
 
@@ -49,7 +50,7 @@ class BuildSystemSuite extends munit.FunSuite:
             Example_3_3
                 .BusyBuildSystem()
                 .build(
-                  replaceB2ByNonMinimalVersionAndObserveB1,
+                  Tasks(replaceB2ByNonMinimalVersionAndObserveB1),
                   "B2",
                   store
                 )
@@ -75,12 +76,10 @@ class BuildSystemSuite extends munit.FunSuite:
 
     private class TaskObserver[C[_[_]], K, V](
         private val underlyingTask: Task[C, K, V]
-    ):
+    ) extends Task[C, K, V]:
         var callCount: Int = 0
-        def task: Task[C, K, V] = [F[_]] =>
-            constraints ?=>
-                fetch =>
-                    callCount += 1
-                    underlyingTask[F](fetch)
+        override def run[F[_]](using constraints: C[F])(fetch: K => F[V]): F[V] =
+            callCount += 1
+            underlyingTask(fetch)
 
 end BuildSystemSuite
