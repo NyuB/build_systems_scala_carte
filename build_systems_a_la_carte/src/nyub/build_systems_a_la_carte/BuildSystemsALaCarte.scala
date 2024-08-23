@@ -1,6 +1,7 @@
 package nyub.build_systems_a_la_carte
 
 import monads.{Identity, Monad}
+import nyub.build_systems_a_la_carte.monads.State
 
 object BuildSystemsALaCarte:
     /** Key-Value store operations
@@ -149,5 +150,12 @@ object BuildSystemsALaCarte:
         ): storeModule.Store
 
     end BuildSystem
+
+    trait Rebuilder[C[_[_]], IR, K, V]:
+        def rebuild(key: K, task: Task[C, K, V], lastValue: V): Task[State.Monad.M[IR], K, V]
+    end Rebuilder
+
+    trait Scheduler[C[_[_]], I, IR, K, V]:
+        def buildSystem(rebuilder: Rebuilder[C, IR, K, V]): BuildSystem[C, I, K, V]
 
 end BuildSystemsALaCarte

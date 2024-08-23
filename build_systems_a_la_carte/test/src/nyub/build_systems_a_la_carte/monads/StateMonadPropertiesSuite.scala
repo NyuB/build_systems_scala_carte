@@ -6,8 +6,10 @@ import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 
 type StringToLong = Map[String, Long]
-type StringToLongStateMonad[A] = StateMonad[StringToLong][A]
-class StringStateMonadPropertiesSuite extends MonadProperties[StringToLongStateMonad]:
+type StringToLongState[A] = State[StringToLong, A]
+given Monad[StringToLongState] = State.Monad.stateMonad[StringToLong]
+
+class StringStateMonadPropertiesSuite extends MonadProperties[StringToLongState]:
     override given associativityTestCases: Arbitrary[AssociativityTestCase[?, ?, ?]] =
         val gen = summon[Arbitrary[StringToLong]].arbitrary.flatMap: maps =>
             AssociativityTestCase(
@@ -29,7 +31,7 @@ class StringStateMonadPropertiesSuite extends MonadProperties[StringToLongStateM
                 RightIdentityTestCase(maps.ret)
         Arbitrary(gen)
 
-    override def eq[A](a: StringToLongStateMonad[A], b: StringToLongStateMonad[A]): Prop =
+    override def eq[A](a: StringToLongState[A], b: StringToLongState[A]): Prop =
         forAll: (s: StringToLong) =>
             assertEquals(a.compute(s), b.compute(s))
 

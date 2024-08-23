@@ -3,7 +3,7 @@ package nyub.build_systems_a_la_carte
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
-import nyub.build_systems_a_la_carte.monads.{monadicState, Applicative, Monad, State, StateMonad}
+import nyub.build_systems_a_la_carte.monads.{Applicative, Monad, State}
 
 object Example_3_3:
     class BusyBuildSystem[V] extends BuildSystem[Applicative, Unit, String, V]:
@@ -12,7 +12,7 @@ object Example_3_3:
             key: String,
             store: storeModule.Store
         ) =
-            given Monad[StateMonad[storeModule.Store]] = monadicState[storeModule.Store]
+            given Monad[State.Monad.T[storeModule.Store]] = State.Monad.stateMonad[storeModule.Store]
 
             def fetch(k: String): State[storeModule.Store, V] =
                 tasks(k) match
@@ -22,7 +22,10 @@ object Example_3_3:
 
             fetch(key).execState(store)
 
-        private def storeValueThenReturn(using storeModule: StoreModule[Unit, String, V])(at: String)(
+        private def storeValueThenReturn(using
+            storeModule: StoreModule[Unit, String, V],
+            monad: Monad[State.Monad.T[storeModule.Store]]
+        )(at: String)(
             v: V
         ): State[storeModule.Store, V] =
             monads.State.modify[storeModule.Store](st => st.putValue(at, v)) >> v.ret

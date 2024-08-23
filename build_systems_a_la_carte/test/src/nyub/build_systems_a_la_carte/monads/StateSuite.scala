@@ -3,7 +3,7 @@ package nyub.build_systems_a_la_carte.monads
 class StateSuite extends munit.FunSuite:
 
     test("String state, appending successive lengths"):
-        given Monad[StateMonad[String]] = monadicState[String]
+        given Monad[State.Monad.T[String]] = State.Monad.stateMonad[String]
         def appendCurrentStateLength: State[String, Unit] =
             State
                 .gets[String, Int](_.length())
