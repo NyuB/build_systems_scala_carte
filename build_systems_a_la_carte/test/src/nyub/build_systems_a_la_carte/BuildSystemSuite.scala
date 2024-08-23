@@ -3,6 +3,8 @@ package nyub.build_systems_a_la_carte
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
+import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
+import nyub.build_systems_a_la_carte.monads.Monad
 
 class BuildSystemSuite extends munit.FunSuite:
 
@@ -68,18 +70,28 @@ class BuildSystemSuite extends munit.FunSuite:
           "Expected B to be called twice because this build system is not minimal"
         )
 
+    test("Monadic build systems are applicative build systems"):
+        given FunctionalStoreModule[Unit, String, Int] = FunctionalStoreModule()
+        DoNothingBuildSystem.build(Example_3_2.sprsh1, "B1", FunctionalStoreModule.failIfNotPut(()))
+
     private val spreadSheetInputs = Example_3_3.BusyStoreModule(
       Map("A1" -> 10, "A2" -> 20)
     )
 
     private def doNotUseDefaultValue[K, V](k: K): V = ???
 
-    private class TaskObserver[C[_[_]], K, V](
+    private class TaskObserver[-C[_[_]], K, V](
         private val underlyingTask: Task[C, K, V]
     ) extends Task[C, K, V]:
         var callCount: Int = 0
         override def run[F[_]](using constraints: C[F])(fetch: K => F[V]): F[V] =
             callCount += 1
             underlyingTask(fetch)
+
+    private object DoNothingBuildSystem extends BuildSystem[Monad, Unit, String, Int]:
+        override def build(using
+            storeModule: StoreModule[Unit, String, Int]
+        )(tasks: Tasks[Monad, String, Int], key: String, store: storeModule.Store): storeModule.Store =
+            store
 
 end BuildSystemSuite

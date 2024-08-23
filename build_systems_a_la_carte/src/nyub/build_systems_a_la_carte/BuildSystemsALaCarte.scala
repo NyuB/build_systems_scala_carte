@@ -47,7 +47,7 @@ object BuildSystemsALaCarte:
       * @tparam V
       *   the **t**ype of values produced by this task
       */
-    trait Task[C[_[_]], K, V]:
+    trait Task[-C[_[_]], K, V]:
         /** @tparam F
           *   the environment (or e**f**fect) within which to run this task
           * @param constraints
@@ -103,7 +103,7 @@ object BuildSystemsALaCarte:
       * @tparam V
       *   the **t**ype of values produced by these tasks
       */
-    trait Tasks[C[_[_]], K, V]:
+    trait Tasks[-C[_[_]], K, V]:
         /** @param taskKey
           *   identifier of the task within these [[Tasks]] definition
           * @return
@@ -130,7 +130,7 @@ object BuildSystemsALaCarte:
 
     end Tasks
 
-    trait BuildSystem[C[_[_]], I, K, V]:
+    trait BuildSystem[+C[_[_]], I, K, V]:
         /** @param storeModule
           *   operations available on `store`
           * @param tasks
