@@ -19,6 +19,10 @@ trait Applicative[F[_]] extends Functor[F]:
         def ap(fa: F[A]): F[B]
         final infix def <*>(fa: F[A]): F[B] = ap(fa)
 
+    extension [A, B](pair: (F[A], F[B]))
+        def map2[C](f: (A, B) => C): F[C] =
+            pure((a: A) => (b: B) => f(a, b)).ap(pair._1).ap(pair._2)
+
 end Applicative
 
 trait Monad[F[_]] extends Applicative[F]:
