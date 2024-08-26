@@ -1,9 +1,8 @@
 package nyub.build_systems_a_la_carte
 
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
-import nyub.build_systems_a_la_carte.monads.Applicative
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
+import BuildSystemsALaCarte.{StoreModule, Task, Tasks}
+import monads.Applicative
+import rebuilders.ModificationTimes
 
 class MakeSuite extends munit.FunSuite:
     type Target = String
@@ -18,7 +17,7 @@ class MakeSuite extends munit.FunSuite:
     test("Nominal"):
         val setup = TestSetup()
         given setup.storeModule.type = setup.storeModule
-        val buildSystem = make[Target, Content]
+        val buildSystem = Make[Target, Content]
         val (info, result) =
             buildSystem.build(setup.tasks, "main.exe", setup.inputStore)
 
@@ -33,7 +32,7 @@ class MakeSuite extends munit.FunSuite:
 
         val (infoAgain, resultAgain) =
             buildSystem.build(setup.tasks, "main.exe", setup.inputStore.putInfo(info))
-        
+
         // Not called any more
         setup.util_o `was called` once
         setup.main_o `was called` once
@@ -54,15 +53,15 @@ class MakeSuite extends munit.FunSuite:
         val main_exe = MainExe()
         val main_c = "MAIN_SOURCE"
 
-        val storeModule = FunctionalStoreModule[MakeInfo[Target], Target, Content]
-        given FunctionalStoreModule[MakeInfo[Target], Target, Content] = storeModule
+        val storeModule = FunctionalStoreModule[ModificationTimes[Target], Target, Content]
+        given FunctionalStoreModule[ModificationTimes[Target], Target, Content] = storeModule
         def inputs(k: Target): Content = k match
             case "util.h" => util_h
             case "util.c" => util_c
             case "main.c" => main_c
             case _        => "EMPTY"
 
-        val inputStore = StoreModule.initialise(MakeInfo(0, Map.empty.withDefault(_ => 0)), inputs)
+        val inputStore = StoreModule.initialise(ModificationTimes(0, Map.empty.withDefault(_ => 0)), inputs)
         def tasks: MakeTasks = k =>
             k match
                 case "util.o"   => Some(util_o)
