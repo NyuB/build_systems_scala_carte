@@ -11,6 +11,7 @@ class MakeSuite extends munit.FunSuite:
     type MakeTasks = Tasks[Applicative, Target, Content]
 
     import FileBuild.once
+    import FileBuild.twice
     import FileBuild.onceMore
     import FileBuild.times
 
@@ -43,6 +44,31 @@ class MakeSuite extends munit.FunSuite:
         )
         // No info updated
         assertEquals(info, infoAgain)
+
+    test("Rebuild only what has changed"):
+        val setup = TestSetup()
+        given setup.storeModule.type = setup.storeModule
+        val buildSystem = Make[Target, Content]
+        val (info, result) =
+            buildSystem.build(setup.tasks, "main.exe", setup.inputStore)
+
+        setup.util_o `was called` once
+        setup.main_o `was called` once
+        setup.main_exe `was called` once
+
+        val modifyMainDotC = info.touch("main.c")
+        val (_, newResult) = buildSystem.build(
+          setup.tasks,
+          "main.exe",
+          (info, result).putInfo(modifyMainDotC).putValue("main.c", "MODIFIED_MAIN_SOURCE")
+        )
+        setup.util_o `was called` once
+        setup.main_o `was called` twice
+        setup.main_exe `was called` twice
+        assertEquals(
+          newResult("main.exe"),
+          "Built main.exe from util.o [Built util.o from util.h [UTIL_HEADER] and util.c [UTIL_SOURCE]] and main.o [Built main.o from util.h [UTIL_HEADER] and main.c [MODIFIED_MAIN_SOURCE]]"
+        )
 
     class TestSetup:
         val util_o = UtilObject()
@@ -109,6 +135,7 @@ class MakeSuite extends munit.FunSuite:
                 t + 1
 
         val once: Times = 1
+        val twice: Times = 2
         val never: Times = 0
 
 end MakeSuite
