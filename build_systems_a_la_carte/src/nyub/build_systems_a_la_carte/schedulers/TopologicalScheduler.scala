@@ -5,7 +5,14 @@ import nyub.build_systems_a_la_carte.monads.{Applicative, State}
 import nyub.build_systems_a_la_carte.graphs.DAG
 import nyub.build_systems_a_la_carte.StaticDependencies
 
-class TopologicalScheduler[I, K, V](using Ordering[K]) extends Scheduler[Applicative, I, I, K, V]:
+/** A scheduler using a topological ordering: leaves tasks are scheduled first, then their dependants tasks, etc
+  *
+  * Since this requires static knowledge of a given task dependencies, this scheduler accept only [[Applicative]] tasks
+  *
+  * @param ordering
+  *   the ordering used to sort keys that are at the same topological level
+  */
+class TopologicalScheduler[I, K, V](using ordering: Ordering[K]) extends Scheduler[Applicative, I, I, K, V]:
     override def buildSystem(rebuilder: Rebuilder[Applicative, I, K, V]): BuildSystem[Applicative, I, K, V] = new:
         override def build(using
             storeModule: StoreModule[I, K, V]
