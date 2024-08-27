@@ -20,6 +20,9 @@ object State:
     trait Monad[S, F[_]] extends nyub.build_systems_a_la_carte.monads.Monad[F]:
         def get: F[S]
         def put(s: S): F[Unit]
+        final def modify(f: S => S): F[Unit] = get.flatMap: s =>
+            put(f(s))
+
     end Monad
 
     object Monad:

@@ -9,34 +9,38 @@ object DynamicDependencies:
       * @return
       *   the direct (i.e. non transitive) dependencies required by this task
       */
-    def directDependencies[F[_], K, V](using monad: Monad[F])(fetch: K => F[V])(task: Task[Monad, K, V]) =
+    def directDependencies[F[_], K, V](using monad: Monad[F])(fetch: K => F[V])(
+        task: Task[Monad, K, V]
+    ): F[(V, Set[(K, V)])] =
         track(fetch, task)
 
-    private def track[F[_], K, V](using monad: Monad[F])(fetch: K => F[V], task: Task[Monad, K, V]): F[(V, Set[K])] =
-        def trackingFetch(k: K): DependenciesAccumulator[K, F, V] =
-            val v = fetch(k).map(v => (v, Set(k)))
+    private def track[F[_], K, V](using
+        monad: Monad[F]
+    )(fetch: K => F[V], task: Task[Monad, K, V]): F[(V, Set[(K, V)])] =
+        def trackingFetch(k: K): DependenciesAccumulator[K, V, F, V] =
+            val v = fetch(k).map(v => (v, Set(k -> v)))
             DependenciesAccumulator(v)
-        given Monad[DependenciesAccumulatorMonad[K, F]] = dependenciesAccumulatorMonad[K, F]
+        given Monad[DependenciesAccumulatorMonad[K, V, F]] = dependenciesAccumulatorMonad[K, V, F]
         task(trackingFetch).run
 
-    private class DependenciesAccumulator[K, F[_], A](
-        private[DynamicDependencies] val underlyingEffect: F[(A, Set[K])]
+    private class DependenciesAccumulator[K, V, F[_], A](
+        private[DynamicDependencies] val underlyingEffect: F[(A, Set[(K, V)])]
     ):
-        def run: F[(A, Set[K])] = underlyingEffect
+        def run: F[(A, Set[(K, V)])] = underlyingEffect
 
-    private type DependenciesAccumulatorMonad[K, F[_]] = [A] =>> DependenciesAccumulator[K, F, A]
+    private type DependenciesAccumulatorMonad[K, V, F[_]] = [A] =>> DependenciesAccumulator[K, V, F, A]
 
-    private given dependenciesAccumulatorMonad[K, F[_]](using
+    private given dependenciesAccumulatorMonad[K, V, F[_]](using
         monad: Monad[F]
-    ): Monad[DependenciesAccumulatorMonad[K, F]] with
-        override def pure[A](a: A): DependenciesAccumulatorMonad[K, F][A] = DependenciesAccumulator(
+    ): Monad[DependenciesAccumulatorMonad[K, V, F]] with
+        override def pure[A](a: A): DependenciesAccumulatorMonad[K, V, F][A] = DependenciesAccumulator(
           monad.pure(a -> Set.empty)
         )
 
-        extension [A](fa: DependenciesAccumulatorMonad[K, F][A])
+        extension [A](fa: DependenciesAccumulatorMonad[K, V, F][A])
             override def flatMap[B](
-                f: A => DependenciesAccumulatorMonad[K, F][B]
-            ): DependenciesAccumulatorMonad[K, F][B] =
+                f: A => DependenciesAccumulatorMonad[K, V, F][B]
+            ): DependenciesAccumulatorMonad[K, V, F][B] =
                 val applied = fa.underlyingEffect.flatMap: (a, depsA) =>
                     f(a).underlyingEffect.map: (b, depsB) =>
                         (b, depsA ++ depsB)

@@ -20,12 +20,12 @@ class DependenciesSuite extends munit.FunSuite:
     test("B1 dynamic dependencies when C1 == 1 in Example 3.5"):
         val Some(result -> dependencies) = dynamicDirectDependencies(fetchWithC1(1))(Example_3_5.taskB1): @unchecked
         assertEquals(result, A1)
-        assertEquals(dependencies, Set("C1", "B2"))
+        assertEquals(dependencies, Set("C1" -> 1, "B2" -> 42))
 
     test("B1 dynamic dependencies when C1 == 0 in Example 3.5"):
         val Some(result -> dependencies) = dynamicDirectDependencies(fetchWithC1(0))(Example_3_5.taskB1): @unchecked
         assertEquals(result, A2)
-        assertEquals(dependencies, Set("C1", "A2"))
+        assertEquals(dependencies, Set("C1" -> 0, "A2" -> 24))
 
     private def fetchWithC1(c1: Int)(k: String): Option[Int] = k match
         case "C1" => Some(c1)
