@@ -1,7 +1,6 @@
 package nyub.build_systems_a_la_carte
 
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
 import nyub.build_systems_a_la_carte.monads.Monad
@@ -79,14 +78,6 @@ class BuildSystemSuite extends munit.FunSuite:
     )
 
     private def doNotUseDefaultValue[K, V](k: K): V = ???
-
-    private class TaskObserver[-C[_[_]], K, V](
-        private val underlyingTask: Task[C, K, V]
-    ) extends Task[C, K, V]:
-        var callCount: Int = 0
-        override def run[F[_]](using constraints: C[F])(fetch: K => F[V]): F[V] =
-            callCount += 1
-            underlyingTask(fetch)
 
     private object DoNothingBuildSystem extends BuildSystem[Monad, Unit, String, Int]:
         override def build(using

@@ -19,17 +19,6 @@ class TopologicalScheduler[I, K, V](using ordering: Ordering[K]) extends Schedul
         )(tasks: Tasks[Applicative, K, V], key: K, store: storeModule.Store): storeModule.Store =
             given State.Monad.M[storeModule.Store][State.Monad.T[storeModule.Store]] =
                 State.Monad.stateMonad[storeModule.Store]
-            def buildInternal(key: K): State[storeModule.Store, Unit] = tasks(key) match
-                case None => ().ret
-                case Some(task) =>
-                    State.get.flatMap: store =>
-                        val value = store.getValue(key)
-                        val newTask = rebuilder.rebuild(key, task, value)
-                        given State.Monad.M[I][State.Monad.T[I]] = State.Monad.stateMonad[I]
-                        def fetch(k: K): State[I, V] = (store.getValue(k).ret)
-                        liftStore(newTask.run(fetch)).flatMap: newValue =>
-                            State.modify: s =>
-                                s.putValue(key, newValue)
             val dag = DAG(
               key,
               k => tasks(k).map(t => StaticDependencies.directDependencies(t)).getOrElse(Set.empty)
@@ -37,13 +26,5 @@ class TopologicalScheduler[I, K, V](using ordering: Ordering[K]) extends Schedul
             val order = dag.topologicalOrder
             order
                 .foldLeft(().ret): (acc, item) =>
-                    acc >> buildInternal(item)
+                    acc >> rebuilder.build(tasks, item)
                 .execState(store)
-
-    private def liftStore[A](using storeModule: StoreModule[I, K, V])(state: State[I, A]): State[storeModule.Store, A] =
-        given State.Monad.M[storeModule.Store][State.Monad.T[storeModule.Store]] =
-            State.Monad.stateMonad[storeModule.Store]
-        State
-            .gets[storeModule.Store, (A, I)](s => state.runState(s.getInfo))
-            .flatMap: (a, newInfo) =>
-                State.modify[storeModule.Store](s => s.putInfo(newInfo)) >> a.ret
