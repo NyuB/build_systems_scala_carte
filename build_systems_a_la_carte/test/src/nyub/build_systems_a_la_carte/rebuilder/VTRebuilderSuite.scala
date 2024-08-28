@@ -5,15 +5,12 @@ import nyub.build_systems_a_la_carte.monads.Monad
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.hashes.HashModule
 import nyub.build_systems_a_la_carte.rebuilders.VerifyingTrace
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Scheduler
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Rebuilder
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.TaskObserver
-import nyub.build_systems_a_la_carte.monads.State
 import nyub.build_systems_a_la_carte.rebuilders.VTRebuilder
 import nyub.build_systems_a_la_carte.FunctionalStoreModule
 import nyub.build_systems_a_la_carte.monads.Applicative
+import nyub.build_systems_a_la_carte.schedulers.FixOrderScheduler
 
 class VTRebuilderSuite extends munit.FunSuite:
     type Hash = Int
@@ -21,7 +18,7 @@ class VTRebuilderSuite extends munit.FunSuite:
 
     test("Tasks are built once when nothing change"):
         val taskOrder = List(ONE_KEY)
-        val testBuildSystem = FixScheduler[VerifyingTrace[String, Int, Hash], String, Int](taskOrder)
+        val testBuildSystem = FixOrderScheduler(taskOrder)
             .buildSystem(VTRebuilder[String, Int, Hash])
         given StoreModule[VerifyingTrace[String, Int, Hash], String, Int] = FunctionalStoreModule()
         val store = StoreModule.initialise(IntTrace.init, _ => -42)
@@ -40,7 +37,7 @@ class VTRebuilderSuite extends munit.FunSuite:
 
     test("Rebuild only when dependencies change"):
         val taskOrder = List(LEFT_KEY, RIGHT_KEY, ADD_KEY, DOUBLE_KEY)
-        val testBuildSystem = FixScheduler[VerifyingTrace[String, Int, Hash], String, Int](taskOrder)
+        val testBuildSystem = FixOrderScheduler(taskOrder)
             .buildSystem(VTRebuilder[String, Int, Hash])
         given StoreModule[VerifyingTrace[String, Int, Hash], String, Int] = FunctionalStoreModule()
 
@@ -92,17 +89,6 @@ class VTRebuilderSuite extends munit.FunSuite:
 
     private object IntTrace:
         def init = IntTrace(Map.empty)
-
-    private class FixScheduler[I, K, V](private val order: List[K]) extends Scheduler[Monad, I, I, K, V]:
-        override def buildSystem(rebuilder: Rebuilder[Monad, I, K, V]): BuildSystem[Monad, I, K, V] = new:
-            override def build(using
-                storeModule: StoreModule[I, K, V]
-            )(tasks: Tasks[Monad, K, V], key: K, store: storeModule.Store): storeModule.Store =
-                given Monad[State.Monad.T[storeModule.Store]] = State.Monad.stateMonad[storeModule.Store]
-                order
-                    .foldLeft(().ret): (acc, item) =>
-                        acc >> rebuilder.build(tasks, item)
-                    .execState(store)
 
     object IntHash extends HashModule[Int, Hash]:
         override def hash[I <: Int](i: I): Hash = i

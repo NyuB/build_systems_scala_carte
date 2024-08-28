@@ -147,34 +147,6 @@ object BuildSystemsALaCarte:
 
     trait Rebuilder[C[_[_]], I, K, V]:
         def rebuild(key: K, task: Task[C, K, V], lastValue: V): Task[State.Monad.M[I], K, V]
-        final def build(using
-            storeModule: StoreModule[I, K, V]
-        )(tasks: Tasks[C, K, V], key: K): State[storeModule.Store, Unit] =
-            given State.Monad.M[storeModule.Store][State.Monad.T[storeModule.Store]] =
-                State.Monad.stateMonad[storeModule.Store]
-            tasks(key) match
-                case None => ().ret
-                case Some(task) =>
-                    State.get.flatMap: store =>
-                        val value = store.getValue(key)
-                        val newTask = this.rebuild(key, task, value)
-                        given State.Monad.M[I][State.Monad.T[I]] = State.Monad.stateMonad[I]
-                        def fetch(k: K): State[I, V] = (store.getValue(k).ret)
-                        liftStore(newTask.run(fetch)).flatMap: newValue =>
-                            State.modify: s =>
-                                s.putValue(key, newValue)
-
-        private def liftStore[A](using storeModule: StoreModule[I, K, V])(
-            state: State[I, A]
-        ): State[storeModule.Store, A] =
-            given State.Monad.M[storeModule.Store][State.Monad.T[storeModule.Store]] =
-                State.Monad.stateMonad[storeModule.Store]
-            State
-                .gets[storeModule.Store, (A, I)](s => state.runState(s.getInfo))
-                .flatMap: (a, newInfo) =>
-                    State.modify[storeModule.Store](s => s.putInfo(newInfo)) >> a.ret
-
-    end Rebuilder
 
     trait Scheduler[C[_[_]], I, IR, K, V]:
         def buildSystem(rebuilder: Rebuilder[C, IR, K, V]): BuildSystem[C, I, K, V]
