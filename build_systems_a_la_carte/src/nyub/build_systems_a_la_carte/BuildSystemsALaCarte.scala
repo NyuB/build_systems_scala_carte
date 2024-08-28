@@ -4,37 +4,6 @@ import monads.{Identity, Monad}
 import nyub.build_systems_a_la_carte.monads.State
 
 object BuildSystemsALaCarte:
-    /** Key-Value store operations
-      */
-    trait StoreModule[I, K, V]:
-        /** The actual store type */
-        type Store
-
-        /** @param i
-          *   initial persistent information
-          * @param kv
-          *   initial key-value mapping for the created store
-          * @return
-          *   a new [[Store]] with initial information and default key-value mapping
-          */
-        def initialise(i: I, kv: (K => V)): Store
-
-        extension (store: Store)
-            /** @return
-              *   the persistent information associated with this `store`
-              */
-            def getInfo: I
-            def putInfo(info: I): Store
-            def getValue(key: K): V
-            def putValue(using CanEqual[K, K])(key: K, v: V): Store
-
-    end StoreModule
-
-    object StoreModule:
-        /** @see StoreModule#initialise */
-        def initialise[I, K, V](using s: StoreModule[I, K, V])(i: I, kv: (K => V)): s.Store = s.initialise(i, kv)
-    end StoreModule
-
     /** @tparam C
       *   the environment **c**onstraints and **c**apabilities required to run this [[Task]]
       * @tparam K
@@ -125,6 +94,18 @@ object BuildSystemsALaCarte:
 
     end Tasks
 
+    /** A build system, able to schedule, run and update a store with the result of user-defined tasks in arbitrary
+      * environments
+      *
+      * @tparam C
+      *   the constraints on the environment within which this build system can execute tasks
+      * @tparam I
+      *   the meta information that this build system uses from the store
+      * @tparam K
+      *   the tasks' keys type
+      * @tparam V
+      *   the tasks' return type
+      */
     trait BuildSystem[+C[_[_]], I, K, V]:
         /** @param storeModule
           *   operations available on `store`
@@ -145,7 +126,29 @@ object BuildSystemsALaCarte:
 
     end BuildSystem
 
+    /** Task wrapper, decides if a given task should be re-executed of if it is already up to date
+      * @tparam C
+      *   the constraints on the environment within which this rebuilder can execute tasks
+      * @tparam I
+      *   the meta-information this rebuilder uses to decide wether or not and hw to rebuild a task
+      * @tparam K
+      *   the tasks' keys type
+      * @tparam K
+      *   the tasks' return type
+      */
     trait Rebuilder[C[_[_]], I, K, V]:
+        /** Wraps a task in another task using meta-information to decide if a given task should be re-executed of if it
+          * is already up to date
+          * @param key
+          *   the task's key
+          * @param task
+          *   user-defined task
+          * @param lastValue
+          *   the last known value of this task
+          * @return
+          *   a new task wrapping the supplied task, which decides based on supplied meta-information wether or not to
+          *   re-execute the underlying task or apply some form of reuse of previous results
+          */
         def rebuild(key: K, task: Task[C, K, V], lastValue: V): Task[State.Monad.M[I], K, V]
 
     trait Scheduler[C[_[_]], I, IR, K, V]:

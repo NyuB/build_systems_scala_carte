@@ -1,7 +1,6 @@
 package nyub.build_systems_a_la_carte
 
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.monads.{Applicative, Monad, State}
 

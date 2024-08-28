@@ -4,7 +4,7 @@ import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Rebuilder
 import nyub.build_systems_a_la_carte.monads.Monad
 import nyub.build_systems_a_la_carte.monads.State
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
-import nyub.build_systems_a_la_carte.DynamicDependencies
+import nyub.build_systems_a_la_carte.dependencies.DynamicDependencies
 
 class VTRebuilder[K, V, H] extends Rebuilder[Monad, VerifyingTrace[K, V, H], K, V]:
     override def rebuild(

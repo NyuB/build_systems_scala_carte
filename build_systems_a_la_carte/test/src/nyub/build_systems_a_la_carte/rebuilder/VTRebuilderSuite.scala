@@ -3,18 +3,19 @@ package nyub.build_systems_a_la_carte.rebuilder
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 import nyub.build_systems_a_la_carte.monads.Monad
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
-import nyub.build_systems_a_la_carte.hashes.HashModule
+import nyub.build_systems_a_la_carte.HashModule
 import nyub.build_systems_a_la_carte.rebuilders.VerifyingTrace
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
+import nyub.build_systems_a_la_carte.StoreModule
 import nyub.build_systems_a_la_carte.TaskObserver
 import nyub.build_systems_a_la_carte.rebuilders.VTRebuilder
-import nyub.build_systems_a_la_carte.FunctionalStoreModule
+import nyub.build_systems_a_la_carte.stores.FunctionalStoreModule
 import nyub.build_systems_a_la_carte.monads.Applicative
 import nyub.build_systems_a_la_carte.schedulers.FixOrderScheduler
+import nyub.build_systems_a_la_carte.hashes.HashCodeModule
 
 class VTRebuilderSuite extends munit.FunSuite:
     type Hash = Int
-    given HashModule[Int, Int] = IntHash
+    given HashModule[Int, Int] = HashCodeModule
 
     test("Tasks are built once when nothing change"):
         val taskOrder = List(ONE_KEY)
@@ -89,9 +90,6 @@ class VTRebuilderSuite extends munit.FunSuite:
 
     private object IntTrace:
         def init = IntTrace(Map.empty)
-
-    object IntHash extends HashModule[Int, Hash]:
-        override def hash[I <: Int](i: I): Hash = i
 
     private def add(taskA: String, taskB: String): Task[Applicative, String, Int] = Task:
         [F[_]] => app ?=> fetch => ((a: Int) => (b: Int) => a + b) `<$>` fetch(taskA) <*> fetch(taskB)

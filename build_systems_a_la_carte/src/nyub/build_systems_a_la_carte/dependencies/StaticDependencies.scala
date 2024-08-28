@@ -1,8 +1,8 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.dependencies
 
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
-import monads.Applicative
+import nyub.build_systems_a_la_carte.monads.Applicative
 
 object StaticDependencies:
     /** @param task

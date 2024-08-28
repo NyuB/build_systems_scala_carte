@@ -1,8 +1,10 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.dependencies
 
-import nyub.build_systems_a_la_carte.StaticDependencies.{directDependencies => staticDirectDependencies}
-import nyub.build_systems_a_la_carte.DynamicDependencies.{directDependencies => dynamicDirectDependencies}
-import nyub.build_systems_a_la_carte.StaticDependencies.dependencies
+import nyub.build_systems_a_la_carte.dependencies.StaticDependencies.{directDependencies => staticDirectDependencies}
+import nyub.build_systems_a_la_carte.dependencies.DynamicDependencies.{directDependencies => dynamicDirectDependencies}
+import nyub.build_systems_a_la_carte.dependencies.StaticDependencies.dependencies
+import nyub.build_systems_a_la_carte.Example_3_2
+import nyub.build_systems_a_la_carte.Example_3_5
 
 class DependenciesSuite extends munit.FunSuite:
     test("B1 static direct dependencies in Example 3.2"):

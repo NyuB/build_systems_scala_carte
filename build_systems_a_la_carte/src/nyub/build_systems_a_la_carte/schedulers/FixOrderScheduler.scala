@@ -3,11 +3,11 @@ package nyub.build_systems_a_la_carte.schedulers
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Scheduler
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Rebuilder
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.monads.State
 import nyub.build_systems_a_la_carte.monads.State.Monad.stateMonad
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
+import nyub.build_systems_a_la_carte.StoreModule
 
 /** A scheduler that will always build the same tasks in the same order
   *

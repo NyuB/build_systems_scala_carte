@@ -1,9 +1,10 @@
 package nyub.build_systems_a_la_carte.schedulers
 
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.{BuildSystem, Rebuilder, Scheduler, StoreModule, Tasks}
+import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.{BuildSystem, Rebuilder, Scheduler, Tasks}
 import nyub.build_systems_a_la_carte.monads.Applicative
 import nyub.build_systems_a_la_carte.graphs.DAG
-import nyub.build_systems_a_la_carte.StaticDependencies
+import nyub.build_systems_a_la_carte.dependencies.StaticDependencies
+import nyub.build_systems_a_la_carte.StoreModule
 
 /** A scheduler using a topological ordering: leaves tasks are scheduled first, then their dependants tasks, etc
   *

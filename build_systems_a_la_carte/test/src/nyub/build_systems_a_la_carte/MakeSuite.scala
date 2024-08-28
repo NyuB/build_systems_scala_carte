@@ -1,8 +1,9 @@
 package nyub.build_systems_a_la_carte
 
-import BuildSystemsALaCarte.{StoreModule, Task, Tasks}
+import BuildSystemsALaCarte.{Task, Tasks}
 import monads.Applicative
 import rebuilders.ModificationTimes
+import stores.FunctionalStoreModule
 
 class MakeSuite extends munit.FunSuite:
     type Target = String

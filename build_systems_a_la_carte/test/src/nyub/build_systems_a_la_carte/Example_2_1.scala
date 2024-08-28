@@ -3,6 +3,7 @@ package nyub.build_systems_a_la_carte
 import nyub.build_systems_a_la_carte.monads.Applicative
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
+import nyub.build_systems_a_la_carte.stores.FunctionalStoreModule
 
 object Example_2_1:
     val storeModule = FunctionalStoreModule[Unit, String, Artifact]()

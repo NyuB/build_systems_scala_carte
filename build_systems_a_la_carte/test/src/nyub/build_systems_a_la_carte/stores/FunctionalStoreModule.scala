@@ -1,6 +1,6 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.stores
 
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
+import nyub.build_systems_a_la_carte.StoreModule
 
 class FunctionalStoreModule[I, K, V] extends StoreModule[I, K, V]:
     override type Store = (I, K => V)

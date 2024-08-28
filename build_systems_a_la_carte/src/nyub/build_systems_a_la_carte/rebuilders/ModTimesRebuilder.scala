@@ -2,7 +2,7 @@ package nyub.build_systems_a_la_carte.rebuilders
 
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.{Rebuilder, Task}
 import nyub.build_systems_a_la_carte.monads.{Applicative, State}
-import nyub.build_systems_a_la_carte.StaticDependencies
+import nyub.build_systems_a_la_carte.dependencies.StaticDependencies
 
 /** A rebuilder based on keys modification times. Will only re-execute a task if any of its dependency has been modified
   * later of simultaneously according to [[ModificationTimes#modificationTimes]]

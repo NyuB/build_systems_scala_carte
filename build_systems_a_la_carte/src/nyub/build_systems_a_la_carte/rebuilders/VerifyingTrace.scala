@@ -1,6 +1,6 @@
 package nyub.build_systems_a_la_carte.rebuilders
 
-import nyub.build_systems_a_la_carte.hashes.HashModule
+import nyub.build_systems_a_la_carte.HashModule
 import nyub.build_systems_a_la_carte.monads.Monad
 
 trait VerifyingTrace[K, V, H](using val hashModule: HashModule[V, H]):

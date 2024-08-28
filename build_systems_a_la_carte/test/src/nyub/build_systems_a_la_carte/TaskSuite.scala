@@ -2,6 +2,7 @@ package nyub.build_systems_a_la_carte
 
 import monads.Monad
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task
+import stores.FunctionalStoreModule
 
 class TaskSuite extends munit.FunSuite:
     given Monad[Option] = monads.Monad.given_Monad_Option
@@ -39,7 +40,7 @@ class TaskSuite extends munit.FunSuite:
 
     test("compute"):
         given FunctionalStoreModule[Unit, String, Int] = FunctionalStoreModule[Unit, String, Int]()
-        val singleValueStore = FunctionalStoreModule.defaultValue(())(42)
+        val singleValueStore = stores.FunctionalStoreModule.defaultValue(())(42)
         def add(a: Int)(b: Int) = a + b
 
         val task = Task[Monad, String, Int]:

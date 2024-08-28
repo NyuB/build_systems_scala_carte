@@ -1,4 +1,4 @@
-package nyub.build_systems_a_la_carte
+package nyub.build_systems_a_la_carte.dependencies
 
 import nyub.build_systems_a_la_carte.monads.Monad
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Task

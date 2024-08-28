@@ -1,9 +1,9 @@
 package nyub.build_systems_a_la_carte
 
-import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.StoreModule
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.Tasks
 import nyub.build_systems_a_la_carte.BuildSystemsALaCarte.BuildSystem
 import nyub.build_systems_a_la_carte.monads.Monad
+import stores.FunctionalStoreModule
 
 class BuildSystemSuite extends munit.FunSuite:
 
@@ -71,7 +71,7 @@ class BuildSystemSuite extends munit.FunSuite:
 
     test("Monadic build systems are applicative build systems"):
         given FunctionalStoreModule[Unit, String, Int] = FunctionalStoreModule()
-        DoNothingBuildSystem.build(Example_3_2.sprsh1, "B1", FunctionalStoreModule.failIfNotPut(()))
+        DoNothingBuildSystem.build(Example_3_2.sprsh1, "B1", stores.FunctionalStoreModule.failIfNotPut(()))
 
     private val spreadSheetInputs = Example_3_3.BusyStoreModule(
       Map("A1" -> 10, "A2" -> 20)
