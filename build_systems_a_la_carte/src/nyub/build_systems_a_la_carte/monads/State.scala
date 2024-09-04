@@ -29,7 +29,7 @@ object State:
         type M[S] = [F[_]] =>> Monad[S, F]
         type T[S] = [A] =>> State[S, A]
         given stateMonad[S]: Monad.M[S][Monad.T[S]] with
-            override def pure[A](a: A): State[S, A] = State.gets(_ => a)
+            override def pure[A](a: => A): State[S, A] = State.gets(_ => a)
             override def get: T[S][S] = State.get
             override def put(s: S): T[S][Unit] = State.put(s)
 

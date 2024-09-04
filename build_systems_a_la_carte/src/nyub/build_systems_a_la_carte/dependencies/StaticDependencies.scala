@@ -47,7 +47,7 @@ object StaticDependencies:
     private type ConstApplicative[K] = [R] =>> Const[K]
 
     private given applicativeConst[K]: Applicative[ConstApplicative[K]] with
-        override def pure[A](a: A): ConstApplicative[K][A] = Const(Set.empty)
+        override def pure[A](a: => A): ConstApplicative[K][A] = Const(Set.empty)
         extension [A, B](ff: ConstApplicative[K][A => B])
             override def ap(
                 fa: ConstApplicative[K][A]

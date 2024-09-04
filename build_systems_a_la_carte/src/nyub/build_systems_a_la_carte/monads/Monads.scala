@@ -10,7 +10,7 @@ trait Functor[F[_]]:
 end Functor
 
 trait Applicative[F[_]] extends Functor[F]:
-    def pure[A](a: A): F[A]
+    def pure[A](a: => A): F[A]
     extension [A](fa: F[A])
         final override def map[B](f: A => B): F[B] =
             pure(f).ap(fa)
@@ -41,15 +41,19 @@ end Monad
 
 object Monad:
     given Monad[Option] with
-        override def pure[A](a: A): Option[A] = Some(a)
+        override def pure[A](a: => A): Option[A] = Some(a)
         extension [A](
             fa: Option[A]
         ) override def flatMap[B](f: A => Option[B]): Option[B] = fa.flatMap(f)
 
 end Monad
 
-case class Identity[A](val value: A)
+class Identity[A](compute: => A):
+    lazy val value = compute
+    override def equals(x: Any): Boolean =
+        x.isInstanceOf[Identity[?]] && x.asInstanceOf[Identity[?]].value == value
+
 object Identity:
     given Monad[Identity] with
-        override def pure[A](a: A): Identity[A] = Identity(a)
+        override def pure[A](a: => A): Identity[A] = Identity(a)
         extension [A](fa: Identity[A]) override def flatMap[B](f: A => Identity[B]): Identity[B] = f(fa.value)

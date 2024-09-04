@@ -33,7 +33,7 @@ object DynamicDependencies:
     private given dependenciesAccumulatorMonad[K, V, F[_]](using
         monad: Monad[F]
     ): Monad[DependenciesAccumulatorMonad[K, V, F]] with
-        override def pure[A](a: A): DependenciesAccumulatorMonad[K, V, F][A] = DependenciesAccumulator(
+        override def pure[A](a: => A): DependenciesAccumulatorMonad[K, V, F][A] = DependenciesAccumulator(
           monad.pure(a -> Set.empty)
         )
 
