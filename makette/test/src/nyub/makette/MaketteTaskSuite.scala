@@ -13,6 +13,7 @@ import nyub.build_systems_a_la_carte.stores.FunctionalStoreModule
 import nyub.makette.TaskResult.Ok
 import nyub.makette.TaskResult.Ko
 import nyub.build_systems_a_la_carte.StoreModule
+import nyub.build_systems_a_la_carte.monads.Monad
 
 class MaketteTaskSuite extends munit.FunSuite:
     test("From java to jar, with class"):
@@ -43,7 +44,7 @@ class MaketteTaskSuite extends munit.FunSuite:
     private def topologicalAlwaysRebuild[K, V](using Ordering[K]): BuildSystem[Applicative, Unit, K, V] =
         TopologicalScheduler().buildSystem(alwaysRebuild)
 
-    private def alwaysRebuild[K, V]: Rebuilder[Applicative, Unit, K, V] = new:
-        override def rebuild(key: K, task: Task[Applicative, K, V], lastValue: V): Task[M[Unit], K, V] = task
+    private def alwaysRebuild[K, V]: Rebuilder[Monad, Unit, K, V] = new:
+        override def rebuild(key: K, task: Task[Monad, K, V], lastValue: V): Task[M[Unit], K, V] = task
 
 end MaketteTaskSuite

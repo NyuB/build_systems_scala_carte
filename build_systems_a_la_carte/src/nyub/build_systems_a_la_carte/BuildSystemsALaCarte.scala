@@ -136,7 +136,7 @@ object BuildSystemsALaCarte:
       * @tparam K
       *   the tasks' return type
       */
-    trait Rebuilder[C[_[_]], I, K, V]:
+    trait Rebuilder[+C[_[_]], I, K, V]:
         /** Wraps a task in another task using meta-information to decide if a given task should be re-executed of if it
           * is already up to date
           * @param key
