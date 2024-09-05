@@ -33,6 +33,7 @@ def sources(files: Seq[Path]) = MaketteTask[ResultFolder | ResultFiles]:
             workspace ?=>
                 fetch =>
                     applicative.pure:
+                        workspace.clear()
                         val dir = workspace.workdir("out")
                         files.foreach(workspace.stash(_, dir))
                         Ok(ResultFolder(dir))
@@ -43,6 +44,7 @@ def javac(sourcesTask: Key) = MaketteTask[ResultFolder | ResultFiles]:
             workspace ?=>
                 fetch =>
                     fetch(sourcesTask).map:
+                        workspace.clear()
                         val dir = workspace.workdir("out")
                         _.cast[ResultFolder].flatMap: sources =>
                             val eachSource = sources.filePaths.map(_.toString()).toSeq
@@ -63,6 +65,7 @@ def jar(classesTask: Key, jarName: String) = MaketteTask[ResultFiles | ResultFol
             workspace ?=>
                 fetch =>
                     fetch(classesTask).map:
+                        workspace.clear()
                         val dir = workspace.workdir("out")
                         val jar = workspace.workfile(jarName, dir)
                         _.cast[ResultFolder].flatMap: classes =>

@@ -17,6 +17,9 @@ class TestWorkspace(val tempDir: Path, val key: Key) extends Workspace:
 
     override def workfile(name: String, workdir: Path): Workfile = workdir.resolve(name)
 
+    override def clear(): Unit =
+        if root.toFile().exists() then root.toFile().listFiles().map(_.toPath()).foreach(rmRf)
+
     extension (w: Workdir)
         override def files: Seq[Workfile] = listFiles(List.empty, w.toFile()).map(_.toPath())
         override def dirPath: Path = w.toAbsolutePath()
@@ -28,3 +31,7 @@ class TestWorkspace(val tempDir: Path, val key: Key) extends Workspace:
         else file.listFiles().foldLeft(acc)(listFiles)
 
 def testWorkspace(tempDir: Path)(key: Key): TestWorkspace = TestWorkspace(tempDir, key)
+private def rmRf(path: Path): Unit =
+    val f = path.toFile()
+    if f.isDirectory() then f.listFiles().map(_.toPath()).foreach(rmRf)
+    Files.delete(path)

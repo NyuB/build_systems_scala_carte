@@ -8,6 +8,7 @@ trait Workspace:
     def workdir(name: String): Workdir
     def workfile(name: String, workdir: Workdir): Workfile
     def stash(actualFile: Path, workdir: Workdir): Workfile
+    def clear(): Unit
 
     extension (w: Workdir)
         def files: Seq[Workfile]
