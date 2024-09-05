@@ -9,7 +9,7 @@ object BuildSystemsALaCarte:
       * @tparam K
       *   the **k**eys allowing to fetch other tasks' results
       * @tparam V
-      *   the **t**ype of values produced by this task
+      *   the type of **v**alues produced by this task
       */
     trait Task[-C[_[_]], K, V]:
         /** @tparam F
