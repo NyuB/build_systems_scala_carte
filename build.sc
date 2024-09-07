@@ -1,7 +1,7 @@
 import mill._, scalalib._
 
 object Versions {
-    val scala = "3.4.1"
+    val scala = "3.5.0"
     val munit = "1.0.0"
 }
 
@@ -15,8 +15,7 @@ trait SharedConfiguration extends ScalaModule {
           "-Wnonunit-statement",
           "-WunstableInlineAccessors",
           "-Wunused:all",
-          "-Wvalue-discard",
-          "-Xlint:all"
+          "-Wvalue-discard"
         )
 
     trait Tests extends ScalaTests with TestModule.Munit {
