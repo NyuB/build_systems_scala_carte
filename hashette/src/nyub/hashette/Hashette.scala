@@ -47,7 +47,7 @@ object Hashette:
                             .sortBy(_.getName())
                             .foreach: f =>
                                 md.update(f.getName().getBytes())
-                                md.update(hashPath(f.toPath(), method).bytes.toArray)
+                                md.update(hashPath(f.toPath(), method, cache, listener).bytes.toArray)
                         md.digest().wrapped
                     else throw IllegalArgumentException(s"$path is not a file or directory")
                 cache.put(path, res)

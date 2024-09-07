@@ -41,15 +41,24 @@ class HashetteSuite extends munit.FunSuite with AssertExtensions:
             val cache = ReadOnlyCache(Map(Paths.get("hashette/test/resources/folder_a") -> Hashette.fromHex("AA")))
             Hashette.hashPath(Paths.get("hashette/test/resources/folder_a"), method, cache, spy) `is equal to` Hashette
                 .fromHex("AA")
-            spy.called = 0
+            spy.called `is equal to` 0
+
+    test("hashPaths computes hashes when cached is missing"):
+        val pathToHash = Paths.get("hashette/test/resources/folder_a")
+        Hashette.Method.values.foreach: method =>
+            val spy = HashSpy()
+            val cache = ReadOnlyCache(Map.empty)
+            Hashette.hashPath(pathToHash, method, cache, spy) `is equal to` Hashette.hashPath(pathToHash, method)
+            spy.called `is equal to` 3
 
     private class HashSpy extends Hashette.Listener:
-        var called = 0
+        def called = _called
+        private var _called = 0
         override def send(p: Path, h: Hash): Unit =
-            called += 1
+            _called += 1
 
     private class ReadOnlyCache(val map: Map[Path, Hashette.Hash]) extends Hashette.Cache:
         override def get(p: Path): Option[Hash] = map.get(p)
-        override def put(p: Path, h: Hash): Unit = ???
+        override def put(p: Path, h: Hash): Unit = ()
 
 end HashetteSuite
