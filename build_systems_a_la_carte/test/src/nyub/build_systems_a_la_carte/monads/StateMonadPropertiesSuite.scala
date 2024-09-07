@@ -33,6 +33,6 @@ class StringStateMonadPropertiesSuite extends MonadProperties[StringToLongState]
 
     override def eq[A](a: StringToLongState[A], b: StringToLongState[A]): Prop =
         forAll: (s: StringToLong) =>
-            assertEquals(a.compute(s), b.compute(s))
+            assertEquals(a.runState(s), b.runState(s))
 
 end StringStateMonadPropertiesSuite

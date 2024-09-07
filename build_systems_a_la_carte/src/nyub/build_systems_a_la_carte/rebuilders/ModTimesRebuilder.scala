@@ -5,7 +5,7 @@ import nyub.build_systems_a_la_carte.monads.{Applicative, State}
 import nyub.build_systems_a_la_carte.dependencies.StaticDependencies
 
 /** A rebuilder based on keys modification times. Will only re-execute a task if any of its dependency has been modified
-  * later of simultaneously according to [[ModificationTimes#modificationTimes]]
+  * later of simultaneously according to [[ModificationTimes]]
   */
 class ModTimeRebuilder[K, V] extends Rebuilder[Applicative, ModificationTimes[K], K, V]:
     override def rebuild(

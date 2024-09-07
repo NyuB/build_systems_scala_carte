@@ -1,10 +1,30 @@
 package nyub.build_systems_a_la_carte.monads
 
-final class State[S, A](val compute: S => (S, A)):
+/** Describes a statefull computation. It can be executed within an arbitrary initial state to retrieve a result along
+  * with the updated state
+  *
+  * @param compute
+  *   mapping from a state to an updated state and a result
+  * @tparam S
+  *   the type of states this computation can be ran in
+  * @tparam A
+  *   this computation result's type
+  */
+final class State[S, A](private val compute: S => (S, A)):
+
+    /** Execute this statefull computation within the initial state `s`
+      *
+      * @param s
+      *   the initial state within which to run this computation
+      * @return
+      *   this computation applied to `s` along with the updated state
+      */
     def runState(s: S): (A, S) =
         val (su, a) = compute(s)
         (a, su)
 
+    /** [[runState]] and return only the updated state
+      */
     def execState(s: S): S = runState(s)._2
 end State
 
@@ -36,8 +56,9 @@ object State:
             extension [A](fa: State[S, A])
                 override def flatMap[B](f: A => State[S, B]): State[S, B] =
                     State: s =>
-                        val (su, a) = fa.compute(s)
-                        f(a).compute(su)
+                        val (a, su) = fa.runState(s)
+                        val (b, sb) = f(a).runState(su)
+                        (sb, b)
 
     end Monad
 
