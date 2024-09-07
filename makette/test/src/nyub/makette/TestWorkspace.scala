@@ -8,6 +8,9 @@ class TestWorkspace(val tempDir: Path, val key: Key) extends Workspace:
     override type Workdir = Path
     override type Workfile = Path
 
+    def resolve(path: String): Path =
+        root.resolve(path)
+
     private val root = tempDir.resolve(key)
     override def stash(actualFile: Path, workdir: Workdir): Workfile =
         Files.copy(actualFile, workdir.resolve(actualFile.getFileName()))
@@ -30,7 +33,9 @@ class TestWorkspace(val tempDir: Path, val key: Key) extends Workspace:
         if file.isFile() then file :: acc
         else file.listFiles().foldLeft(acc)(listFiles)
 
-def testWorkspace(tempDir: Path)(key: Key): TestWorkspace = TestWorkspace(tempDir, key)
+object TestWorkspace:
+    def apply(tempDir: Path)(key: Key): TestWorkspace = new TestWorkspace(tempDir, key)
+
 private def rmRf(path: Path): Unit =
     val f = path.toFile()
     if f.isDirectory() then f.listFiles().map(_.toPath()).foreach(rmRf)

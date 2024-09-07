@@ -2,11 +2,6 @@ package nyub.makette
 
 import java.nio.file.Path
 
-final class ResultFiles(using val workspace: Workspace)(val files: Set[workspace.Workfile]):
-    val filePaths: Set[Path] = files.map(_.filePath)
-    override def equals(x: Any): Boolean =
-        x.isInstanceOf[ResultFiles] && x.asInstanceOf[ResultFiles].filePaths == filePaths
-
 final class ResultFolder(using val workspace: Workspace)(val folder: workspace.Workdir):
     val folderPath: Path = folder.dirPath
     val files = folder.files

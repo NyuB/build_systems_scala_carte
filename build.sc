@@ -38,6 +38,11 @@ object build_systems_a_la_carte extends ScalaModule with SharedConfiguration {
 }
 
 object makette extends ScalaModule with SharedConfiguration {
+    override def moduleDeps = Seq(build_systems_a_la_carte, hashette)
+    object test extends Tests
+}
+
+object hashette extends ScalaModule with SharedConfiguration {
     override def moduleDeps = Seq(build_systems_a_la_carte)
     object test extends Tests
 }

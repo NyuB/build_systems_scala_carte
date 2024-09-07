@@ -22,7 +22,7 @@ class VTRebuilderSuite extends munit.FunSuite:
         val testBuildSystem = FixOrderScheduler(taskOrder)
             .buildSystem(VTRebuilder[String, Int, Hash])
         given StoreModule[VerifyingTrace[String, Int, Hash], String, Int] = FunctionalStoreModule()
-        val store = StoreModule.initialise(IntTrace.init, _ => -42)
+        val store = StoreModule.initialise(VerifyingTrace.InMemory.init, _ => -42)
 
         val one = TaskObserver(constant(1))
 
@@ -53,7 +53,7 @@ class VTRebuilderSuite extends munit.FunSuite:
             case LEFT_KEY  => 1
             case RIGHT_KEY => 3
             case _         => -42
-        val store = StoreModule.initialise(IntTrace.init, inputs)
+        val store = StoreModule.initialise(VerifyingTrace.InMemory.init, inputs)
         val r = testBuildSystem.build(tasks, DOUBLE_KEY, store)
         assertEquals(r.getValue(LEFT_KEY), 1)
         assertEquals(r.getValue(RIGHT_KEY), 3)
@@ -69,27 +69,6 @@ class VTRebuilderSuite extends munit.FunSuite:
         assertEquals(r2.getValue(DOUBLE_KEY), 8)
         assertEquals(observedAdd.callCount, 2)
         assertEquals(observedDouble.callCount, 1)
-
-    private class IntTrace(private val traces: Map[String, (Hash, Set[(String, Hash)])])
-        extends VerifyingTrace[String, Int, Hash]:
-        override def recordTrace(key: String, hash: Hash, depsHash: Set[(String, Hash)]): IntTrace =
-            IntTrace(traces.updated(key, (hash, depsHash)))
-
-        override def traceChanged[F[_]: Monad](key: String, newHash: Hash, getHash: String => F[Hash]): F[Boolean] =
-            traces
-                .get(key)
-                .map: (previousHash, previousDepsHashes) =>
-                    previousDepsHashes
-                        .map((k, _) => k -> getHash(k))
-                        .foldLeft(Set.empty[(String, Hash)].ret): (fset, f) =>
-                            fset.flatMap: set =>
-                                f._2.map: entry =>
-                                    set + (f._1 -> entry)
-                        .map(newDepsHashes => (newHash, newDepsHashes) != (previousHash, previousDepsHashes))
-                .getOrElse(true.ret)
-
-    private object IntTrace:
-        def init = IntTrace(Map.empty)
 
     private def add(taskA: String, taskB: String): Task[Applicative, String, Int] = Task:
         [F[_]] => app ?=> fetch => ((a: Int) => (b: Int) => a + b) `<$>` fetch(taskA) <*> fetch(taskB)
