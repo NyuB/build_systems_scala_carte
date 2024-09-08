@@ -109,10 +109,11 @@ class MaketteTaskSuite extends munit.FunSuite:
         assertEquals(observedC.callCount, 1) // C was not rebuilt because B.class did not change
 
     private object HashetteModule extends HashModule[TaskResult[ResultFolder], Hashette.Hash]:
+        private val hashette = Hashette(Hashette.Method.MD_5, Hashette.NoCache, Hashette.NoListener)
         override def hash(value: TaskResult[ResultFolder]): Hash =
             value match
-                case Ok(v)      => Hashette.hashPath(v.folderPath, Hashette.Method.MD_5)
-                case Ko(reason) => Hashette.hashString(s"KO($reason)", Hashette.Method.MD_5)
+                case Ok(v)      => hashette.hashPath(v.folderPath)
+                case Ko(reason) => hashette.hashString(s"KO($reason)")
 
     private given HashModule[TaskResult[ResultFolder], Hashette.Hash] = HashetteModule
 
