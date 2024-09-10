@@ -9,7 +9,7 @@ endif
 dev: fmt test
 
 test:
-	$(MILLW) -j 4 build_systems_a_la_carte.test + makette.test + hashette.test
+	$(MILLW) -j 4 build_systems_a_la_carte.test + makette.test
 
 
 fmt:

@@ -16,13 +16,12 @@ import nyub.build_systems_a_la_carte.StoreModule
 import nyub.build_systems_a_la_carte.monads.Monad
 import java.nio.file.Path
 import nyub.build_systems_a_la_carte.HashModule
-import nyub.hashette.Hashette
-import nyub.hashette.Hashette.Hash
 import nyub.build_systems_a_la_carte.schedulers.FixOrderScheduler
 import nyub.build_systems_a_la_carte.rebuilders.VTRebuilder
 import nyub.build_systems_a_la_carte.rebuilders.VerifyingTrace
 
 class MaketteTaskSuite extends munit.FunSuite:
+    type Hash = Seq[Byte]
     test("From java to jar, with class"):
 
         // GIVEN
@@ -51,7 +50,7 @@ class MaketteTaskSuite extends munit.FunSuite:
         )
 
     test("Shortcut compilation when nothing changed"):
-        type VT = VerifyingTrace[Key, TaskResult[ResultFolder], Hashette.Hash]
+        type VT = VerifyingTrace[Key, TaskResult[ResultFolder], String]
         given FunctionalStoreModule[VT, Key, TaskResult[ResultFolder]] = FunctionalStoreModule()
 
         val workspace = testWorkspace()
@@ -77,7 +76,7 @@ class MaketteTaskSuite extends munit.FunSuite:
         val order = FixOrderScheduler[Applicative, VT, Key, TaskResult[ResultFolder]](
           Seq("a", "b", "c", "a-class", "b-class", "c-class")
         )
-        val rebuilder = VTRebuilder[Key, TaskResult[ResultFolder], Hashette.Hash]
+        val rebuilder = VTRebuilder[Key, TaskResult[ResultFolder], String]
         val buildSystem = order.buildSystem(rebuilder)
         val (vt, result) =
             buildSystem.build(
@@ -108,14 +107,7 @@ class MaketteTaskSuite extends munit.FunSuite:
         assertEquals(observedB.callCount, 2) // B was rebuilt because A.class changed
         assertEquals(observedC.callCount, 1) // C was not rebuilt because B.class did not change
 
-    private object HashetteModule extends HashModule[TaskResult[ResultFolder], Hashette.Hash]:
-        private val hashette = Hashette(Hashette.Method.MD_5, Hashette.NoCache, Hashette.NoListener)
-        override def hash(value: TaskResult[ResultFolder]): Hash =
-            value match
-                case Ok(v)      => hashette.hashPath(v.folderPath)
-                case Ko(reason) => hashette.hashString(s"KO($reason)")
-
-    private given HashModule[TaskResult[ResultFolder], Hashette.Hash] = HashetteModule
+    private given HashModule[TaskResult[ResultFolder], String] = TestHashModule
 
     private def topologicalAlwaysRebuild[K, V](using Ordering[K]): BuildSystem[Applicative, Unit, K, V] =
         TopologicalScheduler().buildSystem(alwaysRebuild)
