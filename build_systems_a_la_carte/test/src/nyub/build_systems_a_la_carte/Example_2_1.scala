@@ -11,8 +11,8 @@ object Example_2_1:
       (),
       {
           case "util.h" => Artifact.HeaderFile("[HEADER - util]")
-          case "util.c" => Artifact.HeaderFile("[SOURCE - util]")
-          case "main.c" => Artifact.HeaderFile("[SOURCE - main]")
+          case "util.c" => Artifact.CSourceFile("[SOURCE - util]")
+          case "main.c" => Artifact.CSourceFile("[SOURCE - main]")
       }
     )
 
